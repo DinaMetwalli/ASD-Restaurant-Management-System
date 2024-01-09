@@ -3,7 +3,7 @@
 ## Setup
 
 To run, ensure you have docker installed with the `docker compose` command available. 
-Then run `bin/prod.bat` on windows or `make prod` on linux. 
+Then run `bin\prod.bat` on windows or `make prod` on linux. 
 The database will be automatically generated.
 The user `admin` will be generated with password `admin` which has the maximum 
 amount of permissions.
