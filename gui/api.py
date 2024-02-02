@@ -8,4 +8,5 @@ API = requests.Session()
 class State:
     branch_id = None
     username = None
+    role_id = None
     is_ui_rendered = False

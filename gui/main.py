@@ -31,64 +31,65 @@ class App(Page):
 
     def user_view(self):
         user = State.username
-        user_data_res = API.post(f"{URL}/users/{user}", json=user)
-        user_data = user_data_res.json()
-        if user_data["success"]:
-            try:
-                self.notebook.forget(0)
-                self.notebook.forget(1)
-                self.notebook.forget(2)
-                self.notebook.forget(3)
-                self.notebook.forget(4)
-                self.notebook.forget(5)
-                self.notebook.forget(6)
-                self.notebook.forget(7)
-                self.notebook.forget(8)
-            except Exception as e:
-                pass
+        if user is not None:
+            global user_data
+            user_data_res = API.post(f"{URL}/users/{user}", json=user)
+            user_data = user_data_res.json()
+            if user_data["success"]:
+                try:
+                    self.notebook.hide(0)
+                    self.notebook.hide(1)
+                    self.notebook.hide(2)
+                    self.notebook.hide(3)
+                    self.notebook.hide(4)
+                    self.notebook.hide(5)
+                    self.notebook.hide(6)
+                    self.notebook.hide(7)
+                    self.notebook.hide(8)
+                except Exception as e:
+                    pass
 
-            role_id = user_data["data"]["role"]["id"]
+                match State.role_id:
+                    case 0:
+                        self.notebook.add(self.frame1, text='Home')
+                        self.notebook.add(self.frame7, text='Menu')
+                        self.notebook.add(self.frame8, text='Discounts')
+                    case 1:
+                        self.notebook.add(self.frame1, text='Home')
+                        self.notebook.add(self.frame7, text='Menu')
+                        self.notebook.add(self.frame8, text='Discounts')
+                        self.notebook.add(self.frame9, text='Reservations')
+                    case 2 | 3:
+                        self.notebook.add(self.frame1, text='Home')
+                        self.notebook.add(self.frame7, text='Menu')
+                        self.notebook.add(self.frame5, text='Inventory')
+                        self.notebook.add(self.frame8, text='Discounts')
+                    case 4:
+                        self.notebook.add(self.frame1, text='Home')
+                        self.notebook.add(self.frame3, text='Cities')
+                        self.notebook.add(self.frame4, text='Branches')
+                        self.notebook.add(self.frame5, text='Inventory')
+                        self.notebook.add(self.frame6, text='Tables')
+                        self.notebook.add(self.frame7, text='Menu')
+                        self.notebook.add(self.frame8, text='Discounts')
+                        self.notebook.add(self.frame9, text='Reservations')
+                    case 99:
+                        self.notebook.add(self.frame1, text='Home')
+                        self.notebook.add(self.frame2, text='Staff')
+                        self.notebook.add(self.frame3, text='Cities')
+                        self.notebook.add(self.frame4, text='Branches')
+                        self.notebook.add(self.frame5, text='Inventory')
+                        self.notebook.add(self.frame6, text='Tables')
+                        self.notebook.add(self.frame7, text='Menu')
+                        self.notebook.add(self.frame8, text='Discounts')
+                        self.notebook.add(self.frame9, text='Reservations')
+            State.is_ui_rendered = True
 
-            match role_id:
-                case 0:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame8, text='Discounts')
-                case 1:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame8, text='Discounts')
-                    self.notebook.add(self.frame9, text='Reservations')
-                case 2:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame5, text='Inventory')
-                    self.notebook.add(self.frame8, text='Discounts')
-                case 3:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame5, text='Inventory')
-                    self.notebook.add(self.frame8, text='Discounts')
-                case 4:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame3, text='Cities')
-                    self.notebook.add(self.frame4, text='Branches')
-                    self.notebook.add(self.frame5, text='Inventory')
-                    self.notebook.add(self.frame6, text='Tables')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame8, text='Discounts')
-                    self.notebook.add(self.frame9, text='Reservations')
-                case 99:
-                    self.notebook.add(self.frame1, text='Home')
-                    self.notebook.add(self.frame2, text='Staff')
-                    self.notebook.add(self.frame3, text='Cities')
-                    self.notebook.add(self.frame4, text='Branches')
-                    self.notebook.add(self.frame5, text='Inventory')
-                    self.notebook.add(self.frame6, text='Tables')
-                    self.notebook.add(self.frame7, text='Menu')
-                    self.notebook.add(self.frame8, text='Discounts')
-                    self.notebook.add(self.frame9, text='Reservations')
-        State.is_ui_rendered = True
+    def logout(self):
+        self.pages.goto("loggedout")
+        State.role_id = None
+        State.username = None
+        self.user_view()
 
     def create_notebook_widget(self):
         style = ttk.Style(self)
@@ -109,18 +110,9 @@ class App(Page):
         self.frame8 = DiscountsPage(self.notebook)
         self.frame9 = ReservationsPage(self.notebook)
 
-        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-
         btn = tk.Button(self, text="Logout",
-                        command=lambda: self.pages.goto("loggedout"))
+                        command=self.logout)
         btn.pack()
-
-    def on_tab_selected(self, event):
-        selected_tab = event.widget.select()
-        tab_text = event.widget.tab(selected_tab, "text")
-
-        if not State.is_ui_rendered:
-            self.user_view()
 
 
 if __name__ == "__main__":

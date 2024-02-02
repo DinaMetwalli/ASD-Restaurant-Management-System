@@ -76,10 +76,10 @@ class LoginPage(Page):
         self.label.grid(column=1, row=2)
 
     def handle_input(self):
+        branch_id = branch_data[clicked.get()]
+        branch_users_res = API.post(f"{URL}/branches/{branch_id}/users")
+        branch_users = branch_users_res.json()
         if self.username.get() != "admin":
-            branch_id = branch_data[clicked.get()]
-            branch_users_res = API.post(f"{URL}/branches/{branch_id}/users")
-            branch_users = branch_users_res.json()
             for user in branch_users["data"]["users"]:
                 did_find = user["username"] == self.username.get()
                 if did_find:
@@ -95,6 +95,10 @@ class LoginPage(Page):
             case 200:
                 self.label["text"] = ""
                 State.username = login_data["username"]
+                user_data_res = API.post(
+                    f"{URL}/users/{State.username}", json=State.username)
+                user_data = user_data_res.json()
+                State.role_id = user_data["data"]["role"]["id"]
                 self.username.set("")
                 self.password.set("")
                 self.pages.goto("loggedin")
