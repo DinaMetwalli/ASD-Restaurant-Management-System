@@ -20,14 +20,16 @@ class CitiesPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = ViewCities(notebook)
-        self.frame2 = CreateCity(notebook)
-        self.frame3 = UpdateCity(notebook)
+        self.frame1 = CitiesHomePage(notebook)
+        self.frame2 = ViewCities(notebook)
+        self.frame3 = CreateCity(notebook)
+        self.frame4 = UpdateCity(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='View All Cities')
-        notebook.add(self.frame2, text='Create City')
-        notebook.add(self.frame3, text='Update City')
+        notebook.add(self.frame1, text='Home')
+        notebook.add(self.frame2, text='View All Cities')
+        notebook.add(self.frame3, text='Create City')
+        notebook.add(self.frame4, text='Update City')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -35,12 +37,19 @@ class CitiesPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Cities":
-            self.frame1.load_records()
+            self.frame2.load_records()
         if tab_text == "Create City":
-            self.frame2.fields['message']['text'] = ""
-        if tab_text == "Update City":
-            self.frame1.load_records()
             self.frame3.fields['message']['text'] = ""
+        if tab_text == "Update City":
+            self.frame2.load_records()
+            self.frame4.fields['message']['text'] = ""
+
+
+class CitiesHomePage(ttk.Frame):
+    def __init__(self, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+        label = ttk.Label(self, text="Cities Management Page")
+        label.pack()
 
 
 class ViewCities(ttk.Frame):

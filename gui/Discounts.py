@@ -46,6 +46,13 @@ class DiscountsPage(ttk.Frame):
             self.frame2.load_records()
 
 
+class DiscountsHomePage(ttk.Frame):
+    def __init__(self, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+        label = ttk.Label(self, text="Discounts Management Page")
+        label.pack()
+
+
 class ViewDiscounts(ttk.Frame):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
@@ -88,13 +95,6 @@ class ViewDiscounts(ttk.Frame):
             res = API.post(
                 f"{URL}/branches/{branch_id}/discounts/{discount_data[record]}/delete")
         self.load_records()
-
-
-class DiscountsHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Discounts Management Page")
-        label.pack()
 
 
 class CreateDiscount(ttk.Frame):
