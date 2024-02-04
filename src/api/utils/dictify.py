@@ -128,7 +128,8 @@ def dictify_order(obj: Order):
         "id": obj.get_id(),
         "customer_name": obj.get_customer_name(),
         "status": obj.get_status().value,
-        "price": obj.get_price()
+        "price": obj.get_price(),
+        "assigned_staff": obj.get_assigned_staff().get_full_name()
     }
 
 
