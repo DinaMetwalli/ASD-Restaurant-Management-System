@@ -124,12 +124,15 @@ def dictify_discount(obj: Discount):
 
 
 def dictify_order(obj: Order):
+    table = obj.get_table()
+    table_no = table.get_table_number() if table is not None else None
     return {
         "id": obj.get_id(),
         "customer_name": obj.get_customer_name(),
         "status": obj.get_status().value,
         "price": obj.get_price(),
-        "assigned_staff": obj.get_assigned_staff().get_full_name()
+        "assigned_staff": obj.get_assigned_staff().get_full_name(),
+        "table_no": table_no
     }
 
 
