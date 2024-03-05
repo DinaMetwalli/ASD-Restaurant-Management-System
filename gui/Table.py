@@ -20,16 +20,14 @@ class TablesPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = TableHomePage(notebook)
-        self.frame2 = ViewTables(notebook)
-        self.frame3 = CreateTable(notebook)
-        self.frame4 = UpdateTable(notebook)
+        self.frame1 = ViewTables(notebook)
+        self.frame2 = CreateTable(notebook)
+        self.frame3 = UpdateTable(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Tables')
-        notebook.add(self.frame3, text='Create Table')
-        notebook.add(self.frame4, text='Update Table')
+        notebook.add(self.frame1, text='View All Tables')
+        notebook.add(self.frame2, text='Create Table')
+        notebook.add(self.frame3, text='Update Table')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -37,13 +35,13 @@ class TablesPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Tables":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Table":
-            self.frame3.fields['message']['text'] = ""
-            self.frame2.load_records()
+            self.frame2.fields['message']['text'] = ""
+            self.frame1.load_records()
         if tab_text == "Update Table":
-            self.frame2.load_records()
-            self.frame4.fields['message']['text'] = ""
+            self.frame1.load_records()
+            self.frame2.fields['message']['text'] = ""
 
 
 class ViewTables(ttk.Frame):
@@ -88,13 +86,6 @@ class ViewTables(ttk.Frame):
             res = API.post(
                 f"{URL}/branches/{branch_id}/tables/{table_number}/delete")
         self.load_records()
-
-
-class TableHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Table management page")
-        label.pack()
 
 
 class CreateTable(ttk.Frame):

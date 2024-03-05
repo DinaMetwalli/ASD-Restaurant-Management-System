@@ -20,16 +20,14 @@ class InventoryPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = InventoryHomePage(notebook)
-        self.frame2 = ViewItems(notebook)
-        self.frame3 = CreateItem(notebook)
-        self.frame4 = UpdateItem(notebook)
+        self.frame1 = ViewItems(notebook)
+        self.frame2 = CreateItem(notebook)
+        self.frame3 = UpdateItem(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Inventory Items')
-        notebook.add(self.frame3, text='Create Inventory Item')
-        notebook.add(self.frame4, text='Update Inventory Item')
+        notebook.add(self.frame1, text='View All Inventory Items')
+        notebook.add(self.frame2, text='Create Inventory Item')
+        notebook.add(self.frame3, text='Update Inventory Item')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -39,13 +37,13 @@ class InventoryPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Inventory Items":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Home":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Inventory Item":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Update Inventory Item":
-            self.frame2.load_records()
+            self.frame1.load_records()
 
 
 class ViewItems(ttk.Frame):
@@ -94,13 +92,6 @@ class ViewItems(ttk.Frame):
             res = API.post(
                 f"{URL}/branches/{branch_id}/inventory/{item_id}/delete")
         self.load_records()
-
-
-class InventoryHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Inventory management page")
-        label.pack()
 
 
 class CreateItem(ttk.Frame):

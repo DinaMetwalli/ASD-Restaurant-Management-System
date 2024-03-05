@@ -20,16 +20,14 @@ class StaffPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = StaffHomePage(notebook)
-        self.frame2 = ViewStaff(notebook)
-        self.frame3 = CreateUser(notebook)
-        self.frame4 = UpdateUser(notebook)
+        self.frame1 = ViewStaff(notebook)
+        self.frame2 = CreateUser(notebook)
+        self.frame3 = UpdateUser(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Branch Staff')
-        notebook.add(self.frame3, text='Create Staff Member')
-        notebook.add(self.frame4, text='Update Staff Member')
+        notebook.add(self.frame1, text='View All Branch Staff')
+        notebook.add(self.frame2, text='Create Staff Member')
+        notebook.add(self.frame3, text='Update Staff Member')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -39,7 +37,7 @@ class StaffPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Branch Staff":
-            self.frame2.load_records()
+            self.frame1.load_records()
 
 
 class ViewStaff(ttk.Frame):
@@ -83,13 +81,6 @@ class ViewStaff(ttk.Frame):
         for record in user_data:
             res = API.post(f"{URL}/users/{record}/delete")
         self.load_records()
-
-
-class StaffHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Staff management page")
-        label.pack()
 
 
 class CreateUser(ttk.Frame):

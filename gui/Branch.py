@@ -20,16 +20,14 @@ class BranchesPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = BranchesHomePage(notebook)
-        self.frame2 = ViewBranches(notebook)
-        self.frame3 = CreateBranch(notebook)
-        self.frame4 = UpdateBranch(notebook)
+        self.frame1 = ViewBranches(notebook)
+        self.frame2 = CreateBranch(notebook)
+        self.frame3 = UpdateBranch(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Branches')
-        notebook.add(self.frame3, text='Create Branch')
-        notebook.add(self.frame4, text='Update Branch')
+        notebook.add(self.frame1, text='View All Branches')
+        notebook.add(self.frame2, text='Create Branch')
+        notebook.add(self.frame3, text='Update Branch')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -37,21 +35,14 @@ class BranchesPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Branches":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Branch":
-            self.frame3.fields['message']['text'] = ""
-            self.frame3.create_dropdown()
+            self.frame2.fields['message']['text'] = ""
+            self.frame2.create_dropdown()
         if tab_text == "Update Branch":
-            self.frame2.load_records()
-            self.frame4.create_dropdown()
-            self.frame4.fields['message']['text'] = ""
-
-
-class BranchesHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Branches Management Page")
-        label.pack()
+            self.frame1.load_records()
+            self.frame3.create_dropdown()
+            self.frame3.fields['message']['text'] = ""
 
 
 class ViewBranches(ttk.Frame):

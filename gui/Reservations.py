@@ -21,14 +21,12 @@ class ReservationsPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = ReservationsHomePage(notebook)
-        self.frame2 = ViewReservations(notebook)
-        self.frame3 = CreateReservation(notebook)
+        self.frame1 = ViewReservations(notebook)
+        self.frame2 = CreateReservation(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Reservations')
-        notebook.add(self.frame3, text='Create Reservation')
+        notebook.add(self.frame1, text='View All Reservations')
+        notebook.add(self.frame2, text='Create Reservation')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -38,9 +36,9 @@ class ReservationsPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Reservations":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Reservation":
-            self.frame2.load_records()
+            self.frame1.load_records()
 
 
 class ViewReservations(ttk.Frame):
@@ -76,13 +74,6 @@ class ViewReservations(ttk.Frame):
             res_data[res_info["customer"]] = res_info["id"]
 
         self.tree.pack(fill='x', expand=True)
-
-
-class ReservationsHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Menu Management Page")
-        label.pack()
 
 
 class CreateReservation(ttk.Frame):

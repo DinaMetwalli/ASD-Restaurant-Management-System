@@ -20,16 +20,14 @@ class MenuPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = MenuHomePage(notebook)
-        self.frame2 = ViewItems(notebook)
-        self.frame3 = CreateItem(notebook)
-        self.frame4 = UpdateItem(notebook)
+        self.frame1 = ViewItems(notebook)
+        self.frame2 = CreateItem(notebook)
+        self.frame3 = UpdateItem(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Menu Items')
-        notebook.add(self.frame3, text='Create Menu Item')
-        notebook.add(self.frame4, text='Update Menu Item')
+        notebook.add(self.frame1, text='View All Menu Items')
+        notebook.add(self.frame2, text='Create Menu Item')
+        notebook.add(self.frame3, text='Update Menu Item')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -39,11 +37,11 @@ class MenuPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Menu Items":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Menu Item":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Update Menu Item":
-            self.frame2.load_records()
+            self.frame1.load_records()
 
 
 class ViewItems(ttk.Frame):
@@ -90,13 +88,6 @@ class ViewItems(ttk.Frame):
             res = API.post(
                 f"{URL}/branches/{branch_id}/menu/{menu_data[record]}/delete")
         self.load_records()
-
-
-class MenuHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Menu Management Page")
-        label.pack()
 
 
 class CreateItem(ttk.Frame):

@@ -20,16 +20,14 @@ class DiscountsPage(ttk.Frame):
         notebook.pack(fill='both', expand=True)
 
         # create frames
-        self.frame1 = DiscountsHomePage(notebook)
-        self.frame2 = ViewDiscounts(notebook)
-        self.frame3 = CreateDiscount(notebook)
-        self.frame4 = UpdateDiscount(notebook)
+        self.frame1 = ViewDiscounts(notebook)
+        self.frame2 = CreateDiscount(notebook)
+        self.frame3 = UpdateDiscount(notebook)
 
         notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='Home')
-        notebook.add(self.frame2, text='View All Discounts')
-        notebook.add(self.frame3, text='Create Discount')
-        notebook.add(self.frame4, text='Update Discount')
+        notebook.add(self.frame1, text='View All Discounts')
+        notebook.add(self.frame2, text='Create Discount')
+        notebook.add(self.frame3, text='Update Discount')
 
     def on_tab_selected(self, event):
         # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
@@ -39,18 +37,11 @@ class DiscountsPage(ttk.Frame):
         tab_text = event.widget.tab(selected_tab, "text")
 
         if tab_text == "View All Discounts":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Create Discount":
-            self.frame2.load_records()
+            self.frame1.load_records()
         if tab_text == "Update Discount":
-            self.frame2.load_records()
-
-
-class DiscountsHomePage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        label = ttk.Label(self, text="Discounts Management Page")
-        label.pack()
+            self.frame1.load_records()
 
 
 class ViewDiscounts(ttk.Frame):
