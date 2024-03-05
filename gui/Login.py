@@ -76,17 +76,18 @@ class LoginPage(Page):
         self.label.grid(column=1, row=2)
 
     def handle_input(self):
-        branch_id = branch_data[clicked.get()]
-        branch_users_res = API.post(f"{URL}/branches/{branch_id}/users")
-        branch_users = branch_users_res.json()
-        if self.username.get() != "admin":
-            for user in branch_users["data"]["users"]:
-                did_find = user["username"] == self.username.get()
-                if did_find:
-                    break
-            if not did_find:
-                self.label["text"] = "This user doesn't work at this branch."
-                return
+        if State.branch_id is not None:
+            branch_id = branch_data[clicked.get()]
+            branch_users_res = API.post(f"{URL}/branches/{branch_id}/users")
+            branch_users = branch_users_res.json()
+            if self.username.get() != "admin":
+                for user in branch_users["data"]["users"]:
+                    did_find = user["username"] == self.username.get()
+                    if did_find:
+                        break
+                if not did_find:
+                    self.label["text"] = "This user doesn't work at this branch."
+                    return
         login_data = {"username": self.username.get(
         ), "password": self.password.get()}
         State.is_ui_rendered = False
