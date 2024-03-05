@@ -72,3 +72,11 @@ def test_end_time():
     new_dt = datetime.now()
     event.set_end_time(new_dt)
     assert event.get_end_time().timestamp() == new_dt.timestamp()
+
+def test_address():
+    assert event is not None
+    assert event.get_address() == "10 Bristol"
+    new_addess = "23 Doughnut Street"
+    event.set_address(new_addess)
+    assert event.get_address() == new_addess
+    
