@@ -53,9 +53,9 @@ def test_get_all():
 
 def test_type():
     assert event is not None
-    assert event.get_event_type() == 0
+    assert event.get_type() == 0
     event.set_type(1)
-    assert event.get_event_type() == 1
+    assert event.get_type() == 1
 
 
 def test_start_time():
