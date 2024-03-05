@@ -20,7 +20,7 @@ class Event:
 
         return event_id[0]
 
-    def get_event_type(self) -> str:
+    def get_type(self) -> str:
         """Get event type."""
         event_type = Database.execute_and_fetchone(
             "SELECT type FROM public.events WHERE id = %s", self._event_id)
