@@ -61,6 +61,14 @@ class Event:
         assert end_time is not None
 
         return end_time[0]
+    
+    def get_address(self) -> str:
+        """Get the address of the event."""
+        address = Database.execute_and_fetchone(
+            "SELECT address FROM public.events WHERE id = %s", self._event_id)
+        assert address is not None
+
+        return address[0]
 
     def set_type(self, event_type: int) -> None:
         """Set type of event."""
@@ -96,3 +104,10 @@ class Event:
 
         sql = "UPDATE public.events SET end_time = %s WHERE id = %s"
         Database.execute_and_commit(sql, end_time, self._event_id)
+
+    def set_address(self, address: str) -> None:
+        """Set user phone number for event."""
+        ActiveUser.get().raise_without_permission("events.update.address")
+
+        sql = "UPDATE public.events SET address = %s WHERE id = %s"
+        Database.execute_and_commit(sql, address, self._event_id)
