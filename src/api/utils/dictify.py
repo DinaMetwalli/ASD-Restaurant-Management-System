@@ -9,6 +9,7 @@ from src.order.Order import Order
 from src.reservations.Reservation import Reservation
 from src.tables.Table import Table
 from src.user.User import User
+from src.events.Event import Event
 
 
 def dictify_city(obj: City):
@@ -130,6 +131,7 @@ def dictify_order(obj: Order):
     discount_multipler = discount.get_multiplier() if discount is not None else None
     return {
         "id": obj.get_id(),
+        "order_no": obj.get_number(),
         "customer_name": obj.get_customer_name(),
         "status": obj.get_status().value,
         "price": obj.get_price(),
@@ -146,4 +148,14 @@ def dictify_reservation(obj: Reservation):
         "time": obj.get_time().__str__(),
         "num_people": obj.get_num_people(),
         "table_num": obj.get_table().get_table_number(),
+    }
+
+def dictify_event(obj: Event):
+    return {
+        "id": obj.get_id(),
+        "start_time": obj.get_start_time().__str__(),
+        "end_time": obj.get_end_time().__str__(),
+        "phone_num": obj.get_phone_number(),
+        "email": obj.get_email(),
+        "address": obj.get_address(),
     }
