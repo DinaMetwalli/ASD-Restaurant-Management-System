@@ -158,4 +158,5 @@ def dictify_event(obj: Event):
         "phone_num": obj.get_phone_number(),
         "email": obj.get_email(),
         "address": obj.get_address(),
+        "type": obj.get_type(),
     }
