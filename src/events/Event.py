@@ -15,7 +15,7 @@ class Event:
     def get_id(self) -> str:
         """Get event ID."""
         event_id = Database.execute_and_fetchone(
-            "SELECT id FROM public.events WHERE id = %d", self._event_id)
+            "SELECT id FROM public.events WHERE id = %s", self._event_id)
         assert event_id is not None
 
         return event_id[0]
