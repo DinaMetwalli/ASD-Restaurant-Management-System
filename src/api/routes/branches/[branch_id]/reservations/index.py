@@ -13,6 +13,6 @@ def post(branch_id: str = ""):
 
     reservations = branch.reservations().get_all()
 
-    users_data = [dictify_reservation(r) for r in reservations]
+    reservation_data = [dictify_reservation(r) for r in reservations]
 
-    return OK({"reservations": users_data})
+    return OK({"reservations": reservation_data})
