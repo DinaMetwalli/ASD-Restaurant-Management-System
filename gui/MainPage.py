@@ -70,15 +70,15 @@ class MainPage(ctk.CTkFrame):
                         self.button8.grid(row=7, column=0, padx=20, pady=10)
                         self.button9.grid(row=8, column=0, padx=20, pady=10)
                     case 99:
-                        self.button1.grid(row=1, column=0, padx=20, pady=10)
-                        self.button2.grid(row=2, column=0, padx=20, pady=10)
-                        self.button3.grid(row=3, column=0, padx=20, pady=10)
-                        self.button4.grid(row=4, column=0, padx=20, pady=10)
-                        self.button5.grid(row=5, column=0, padx=20, pady=10)
-                        self.button6.grid(row=6, column=0, padx=20, pady=10)
-                        self.button7.grid(row=7, column=0, padx=20, pady=10)
-                        self.button8.grid(row=8, column=0, padx=20, pady=10)
-                        self.button9.grid(row=9, column=0, padx=20, pady=10)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5)
+                        self.button2.grid(row=2, column=0, padx=20, pady=5)
+                        self.button3.grid(row=3, column=0, padx=20, pady=5)
+                        self.button4.grid(row=4, column=0, padx=20, pady=5)
+                        self.button5.grid(row=5, column=0, padx=20, pady=5)
+                        self.button6.grid(row=6, column=0, padx=20, pady=5)
+                        self.button7.grid(row=7, column=0, padx=20, pady=5)
+                        self.button8.grid(row=8, column=0, padx=20, pady=5)
+                        self.button9.grid(row=9, column=0, padx=20, pady=5)
             State.is_ui_rendered = True
 
     def logout(self):
@@ -111,7 +111,7 @@ class MainPage(ctk.CTkFrame):
                                                  font=ctk.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         
-        btn_w = 80
+        btn_w = 180
         btn_h = 30
 
         self.button1 = ctk.CTkButton(master=side_bar, text="Home", command=lambda:
@@ -152,8 +152,9 @@ class MainPage(ctk.CTkFrame):
         
         self.select_page(self.frame1)
 
-        btn = tk.Button(self, text="Logout", command=self.logout)
-        btn.grid()
+        btn = ctk.CTkButton(master=side_bar, text="Logout", command=self.logout,
+                            width=btn_w, height=btn_h)
+        btn.grid(row=10, column=0, sticky="s", pady=(200, 50))
     
     def select_page(self, selected_page: ctk.CTkFrame):
 
