@@ -1,19 +1,21 @@
 # Author: Dina Hassanein (22066792)
 from gui_lib import Page
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import *
 from tkinter import ttk
 
 
-class MainTab(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+class MainTab(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        
         self.notebook = self.create_notebook_widget()
 
     def create_notebook_widget(self):
 
-        label = ttk.Label(self, textvariable="Main Page")
-        label.pack()
+        label = ctk.CTkLabel(self, text="Main Page")
+        label.pack(padx=20, pady=20)
 
-        # if no branches created to be able to select a branch and login to it as staff member,
-        # admin acount must create branch first.
+    def load_records(self):
+        pass
