@@ -1,129 +1,56 @@
 # Author: Dina Hassanein (22066792)
-import tkinter as tk
-from tkinter import ttk
-from gui_lib import Page, PageManager
+"""Entry point for GUI application"""
 
-from MainPage import MainTab
-from Login import LoginPage, ChooseBranch
-from Staff import StaffPage
-from City import CitiesPage
-from Branch import BranchesPage
-from Inventory import InventoryPage
-from Table import TablesPage
-from Menu import MenuPage
-from Discounts import DiscountsPage
-from Reservations import ReservationsPage
-from api import API, URL, State
+import customtkinter as ctk
+from customtkinter import CTk
+
+from Login import LoginPage
+from ChooseBranch import ChooseBranch
+from GeneralView import MainPage
 
 
-class App(Page):
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+class App(CTk):
     def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        root.geometry("1005x600")
-        root.title('Horizon Restaurants')
-        root.resizable(1, 1)
-        root.columnconfigure(0, weight=1)
-        root.columnconfigure(1, weight=3)
-        self.create_notebook_widget()
+        super().__init__(*args, **kwargs)
+
+        self.geometry("1050x680+0+0")
+        self.title('Horizon Restaurants')
+        self.resizable(1, 1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=3)
+
+        container = ctk.CTkFrame(self)
+        container.pack(side="top", fill="both", expand=True)
+
+        self.frame = None
+
+        self.frames = {}
+        for F in (LoginPage, ChooseBranch, MainPage):
+            page_name = F.__name__
+            self.frame = F(container, self)
+            self.frames[page_name] = self.frame
+
+        self.goto("LoginPage")
+
+    def goto(self, page_name):
+        """Display given page and hide current page"""
+        if self.frame is not None:
+            self.frame.pack_forget()
+        self.frame = self.frames[page_name]
+        self.frame.pack(fill="both", expand=False)
+        self.frame.tkraise()
+        self.on_show()
 
     def on_show(self):
-        self.user_view()
-
-    def user_view(self):
-        user = State.username
-        if user is not None:
-            global user_data
-            user_data_res = API.post(f"{URL}/users/{user}", json=user)
-            user_data = user_data_res.json()
-            if user_data["success"]:
-                try:
-                    self.notebook.hide(0)
-                    self.notebook.hide(1)
-                    self.notebook.hide(2)
-                    self.notebook.hide(3)
-                    self.notebook.hide(4)
-                    self.notebook.hide(5)
-                    self.notebook.hide(6)
-                    self.notebook.hide(7)
-                    self.notebook.hide(8)
-                except Exception as e:
-                    pass
-
-                match State.role_id:
-                    case 0:
-                        self.notebook.add(self.frame1, text='Home')
-                        self.notebook.add(self.frame7, text='Menu')
-                        self.notebook.add(self.frame8, text='Discounts')
-                    case 1:
-                        self.notebook.add(self.frame1, text='Home')
-                        self.notebook.add(self.frame7, text='Menu')
-                        self.notebook.add(self.frame8, text='Discounts')
-                        self.notebook.add(self.frame9, text='Reservations')
-                    case 2 | 3:
-                        self.notebook.add(self.frame1, text='Home')
-                        self.notebook.add(self.frame7, text='Menu')
-                        self.notebook.add(self.frame5, text='Inventory')
-                        self.notebook.add(self.frame8, text='Discounts')
-                    case 4:
-                        self.notebook.add(self.frame1, text='Home')
-                        self.notebook.add(self.frame3, text='Cities')
-                        self.notebook.add(self.frame4, text='Branches')
-                        self.notebook.add(self.frame5, text='Inventory')
-                        self.notebook.add(self.frame6, text='Tables')
-                        self.notebook.add(self.frame7, text='Menu')
-                        self.notebook.add(self.frame8, text='Discounts')
-                        self.notebook.add(self.frame9, text='Reservations')
-                    case 99:
-                        self.notebook.add(self.frame1, text='Home')
-                        self.notebook.add(self.frame2, text='Staff')
-                        self.notebook.add(self.frame3, text='Cities')
-                        self.notebook.add(self.frame4, text='Branches')
-                        self.notebook.add(self.frame5, text='Inventory')
-                        self.notebook.add(self.frame6, text='Tables')
-                        self.notebook.add(self.frame7, text='Menu')
-                        self.notebook.add(self.frame8, text='Discounts')
-                        self.notebook.add(self.frame9, text='Reservations')
-            State.is_ui_rendered = True
-
-    def logout(self):
-        self.pages.goto("loggedout")
-        State.role_id = None
-        State.username = None
-        self.user_view()
-
-    def create_notebook_widget(self):
-        style = ttk.Style(self)
-        style.configure('lefttab.TNotebook', tabposition='wn')
-
-        self.notebook = ttk.Notebook(self, style='lefttab.TNotebook')
-        self.notebook.pack(fill='both', expand=True)
-
-        # create frames
-
-        self.frame1 = MainTab(self.notebook)
-        self.frame2 = StaffPage(self.notebook)
-        self.frame3 = CitiesPage(self.notebook)
-        self.frame4 = BranchesPage(self.notebook)
-        self.frame5 = InventoryPage(self.notebook)
-        self.frame6 = TablesPage(self.notebook)
-        self.frame7 = MenuPage(self.notebook)
-        self.frame8 = DiscountsPage(self.notebook)
-        self.frame9 = ReservationsPage(self.notebook)
-
-        btn = tk.Button(self, text="Logout",
-                        command=self.logout)
-        btn.pack()
-
+        """Refresh page widgets when moving to a different page"""
+        try:
+            self.frame.on_show()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    main = PageManager(root)
-    main.pack(side="top", fill="both", expand=True)
-
-    main.add_page("loggedout", ChooseBranch)
-    main.add_page("login", LoginPage)
-    main.add_page("loggedin", App)
-
-    main.goto("loggedout")
-
+    root = App()
     root.mainloop()
