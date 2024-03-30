@@ -1,107 +1,134 @@
 # Author: Dina Hassanein (22066792)
-from gui_lib import Page
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk
+
 from api import URL, API, State
 
-branch_data = None
+import tkinter as tk
+import customtkinter as ctk
+import ttkbootstrap as ttkb
+import pywinstyles
+from PIL import ImageTk
 
 
-class ChooseBranch(Page):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        self.create_widgets()
-        self.drop = None
+class LoginPage(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
 
-    def create_widgets(self):
-        label = tk.Label(self, text="Please choose a branch")
-        label.grid(row=0, column=0, pady=10)
+        self.controller = controller
 
-        self.all_branches_res = API.post(f"{URL}/branches")
-        self.all_branches = self.all_branches_res.json()
-
-    def on_show(self):
-        if len(self.all_branches["data"]["branches"]) == 0:
-            self.pages.goto("login")
-            return
-
-        State.is_ui_rendered = False
-
-        if self.drop is None:
-            self.dropdown = []
-
-            global branch_data
-            branch_data = {}
-            for branch in self.all_branches["data"]["branches"]:
-                self.dropdown.append(branch["name"])
-                branch_data[branch["name"]] = branch["id"]
-
-            global clicked
-            clicked = StringVar()
-            display_text = self.dropdown[0]
-            clicked.set(display_text)
-            self.drop = OptionMenu(self, clicked, *self.dropdown)
-            self.drop.grid(row=1, column=0, pady=10)
-
-            def on_select():
-                State.branch_id = branch_data[clicked.get()]
-                self.pages.goto("login")
-
-            btn = tk.Button(self, text="Choose Branch",
-                            command=on_select)
-            btn.grid()
-
-
-class LoginPage(Page):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
+        self.grid_columnconfigure(0, weight=1)
         self.create_widgets()
 
     def create_widgets(self):
+        self.custom_font = ctk.CTkFont(family="Oswald", size=20)
+        self.input_font = ctk.CTkFont(family="Dosis Semibold", size=16)
+        
         self.username = tk.StringVar()
         self.password = tk.StringVar()
-        username_label = ttk.Label(self, text="Username:").grid(
-            column=0, row=0, sticky=tk.W, padx=5, pady=5)
-        username_entry = ttk.Entry(self, textvariable=self.username).grid(
-            column=1, row=0, sticky=tk.W, padx=5, pady=5)
-        password_label = ttk.Label(self, text="Password:").grid(
-            column=0, row=1, sticky=tk.W, padx=5, pady=5)
-        password_entry = ttk.Entry(
-            self, textvariable=self.password, show="*").grid(column=1, row=1, sticky=tk.W, padx=5, pady=5)
+        
+        login_frame = ttkb.Frame(self)
+        login_frame.grid(row=0, column=0)
 
-        btn = tk.Button(self, text="Login", command=self.handle_input)
-        btn.grid(column=0, row=2, sticky=tk.W, padx=5)
-        self.label = Label(self, text="")
-        self.label.grid(column=1, row=2)
+        top = ctk.CTkLabel(self, bg_color='#2b2b2b', height=100, text='')
+        top.grid(row=0, column=0, sticky="ew")
+
+        self.canvas = ttkb.Canvas(self, bg="black", width=700, height=700)
+        self.canvas.grid(row=1, column=0)
+
+        self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(430, 400))
+        self.title = ImageTk.PhotoImage(file="gui/assets/title.png")
+        
+
+        self.canvas.create_image(350, 350, image=self.image)
+
+        user_text = self.canvas.create_text(120, 350, fill="white", text="Username")
+        self.canvas.itemconfig(user_text, font=("Dosis Semibold", 23))
+        
+        pass_text = self.canvas.create_text(120, 430, fill="white", text="Password")
+        self.canvas.itemconfig(pass_text, font=("Dosis Semibold", 23))
+        
+        self.canvas.create_image(350, 150, image=self.title)
+
+        label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
+        self.canvas.create_window(50, 50, anchor="center", window=label)
+
+        username_entry = ctk.CTkEntry(master=self.canvas, textvariable=self.username,
+                                      width=250, height=35, bg_color="#af2de7",
+                                      font=self.input_font)
+        username_entry.place(x=190, y=218)
+
+        password_entry = ctk.CTkEntry(master=self.canvas, textvariable=self.password,
+                                      width=250, height=35, show="•", bg_color="#af2de7",
+                                      font=self.input_font)
+        password_entry.place(x=190, y=275)
+
+        login_btn = ctk.CTkButton(master=self.canvas, text="  LOGIN →", command=self.handle_input,
+                                  font=self.custom_font, width=200, fg_color='#333333', bg_color=
+                                  "#af2de7")
+        login_btn.place(relx= 0.04, rely=0.8)
+
+        back_btn = ctk.CTkButton(master=self.canvas, text="PREVIOUS PAGE",
+            command=lambda: self.controller.goto("ChooseBranch"),
+            font=self.custom_font, width=200, fg_color='#333333',
+            bg_color="#af2de7")
+        back_btn.place(relx= 0.55, rely=0.8)
+
+        self.message = self.canvas.create_text(390, 510, fill="#330026", font="Dosis 20 bold",
+                   text="")
+        
+        pywinstyles.set_opacity(username_entry, color="#af2de7")
+        pywinstyles.set_opacity(password_entry, color="#af2de7")
+        pywinstyles.set_opacity(login_btn, color="#af2de7")
+        pywinstyles.set_opacity(back_btn, color="#af2de7")
+
+    def goto(self, page_name):
+        """Show a frame for the given page name."""
+        frame = self.frames[page_name]
+        frame.pack(fill="both", expand=True)
+        frame.tkraise()
 
     def handle_input(self):
+        print("The branch id is", State.branch_id)
         if State.branch_id is not None:
-            branch_id = branch_data[clicked.get()]
+            branch_id = State.branch_id
+
             branch_users_res = API.post(f"{URL}/branches/{branch_id}/users")
             branch_users = branch_users_res.json()
+
             if self.username.get() != "admin":
                 for user in branch_users["data"]["users"]:
-                    did_find = user["username"] == self.username.get()
-                    if did_find:
+                    found = user["username"] == self.username.get()
+                    print(found)
+
+                    if found:
                         break
-                if not did_find:
-                    self.label["text"] = "This user doesn't work at this branch."
+
+                if not found:
+                    self.canvas.itemconfig(self.message, text="This user doesn't \
+                                           work at this branch.")
                     return
-        login_data = {"username": self.username.get(
-        ), "password": self.password.get()}
-        State.is_ui_rendered = False
+                
+        login_data = {"username": self.username.get(),
+                      "password": self.password.get()}
         login = API.post(f"{URL}/login", json=login_data)
+
+        State.is_ui_rendered = False
+
         match login.status_code:
             case 200:
-                self.label["text"] = ""
-                State.username = login_data["username"]
+                self.canvas.itemconfig(self.message, text="")
+
+                username = login_data["username"]
                 user_data_res = API.post(
-                    f"{URL}/users/{State.username}", json=State.username)
+                    f"{URL}/users/{username}", json=username)
                 user_data = user_data_res.json()
+
                 State.role_id = user_data["data"]["role"]["id"]
+                State.username = username
+
                 self.username.set("")
                 self.password.set("")
-                self.pages.goto("loggedin")
+
+                self.controller.goto("MainPage")
+
             case 401:
-                self.label["text"] = "Invalid Credentials"
+                self.canvas.itemconfig(self.message, text="Invalid Credentials")
