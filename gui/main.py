@@ -6,7 +6,7 @@ from customtkinter import CTk
 
 from Login import LoginPage
 from ChooseBranch import ChooseBranch
-from GeneralView import MainPage
+from MainPage import MainPage
 
 
 ctk.set_appearance_mode("dark")
@@ -33,7 +33,7 @@ class App(CTk):
             self.frame = F(container, self)
             self.frames[page_name] = self.frame
 
-        self.goto("LoginPage")
+        self.goto("ChooseBranch")
 
     def goto(self, page_name):
         """Display given page and hide current page"""
