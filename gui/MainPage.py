@@ -1,6 +1,5 @@
 # Author: Dina Hassanein (22066792)
 
-import tkinter as tk
 import customtkinter as ctk
 from customtkinter import CTkImage
 from PIL import Image
@@ -157,8 +156,10 @@ class MainPage(ctk.CTkFrame):
         btn.grid(row=10, column=0, sticky="s", pady=(200, 50))
     
     def select_page(self, selected_page: ctk.CTkFrame):
-
-        selected_page.load_records()
+        try:
+            selected_page.load_records()
+        except Exception:
+            pass
         selected_page.grid(row=0, column=1,sticky="nsew")
 
         for page in self.all_pages:
