@@ -12,11 +12,13 @@ cleanup = auth_cleanup
 
 
 class PostSchema(Schema):
+    name = fields.String(required=True)
     description = fields.String(required=True)
     multiplier = fields.Float(required=True)
 
 
 def post(body: dict, branch_id: str):
+    name = body["name"]
     description = body["description"]
     multiplier = body["multiplier"]
 
@@ -28,7 +30,7 @@ def post(body: dict, branch_id: str):
         return Error(Status.NOT_FOUND, "Branch not found.")
 
     try:
-        discount = branch.discounts().create(multiplier, description)
+        discount = branch.discounts().create(name, multiplier, description)
     except AlreadyExistsError as e:
         return Error(Status.CONFLICT, e.message)
     except InputError as e:

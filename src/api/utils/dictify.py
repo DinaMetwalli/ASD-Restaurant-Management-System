@@ -119,6 +119,7 @@ def dictify_menu_item(obj: MenuItem):
 def dictify_discount(obj: Discount):
     return {
         "id": obj.get_id(),
+        "name": obj.get_name(),
         "description": obj.get_description(),
         "multiplier": obj.get_multiplier()
     }
