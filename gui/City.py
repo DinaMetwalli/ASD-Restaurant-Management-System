@@ -5,7 +5,6 @@ import customtkinter as ctk
 
 from api import API, URL
 
-
 class CitiesPage(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -42,11 +41,11 @@ class CityView(ctk.CTkTabview):
         self.update_city()
 
     def load_data(self):
-        self.value = [["City Name"]]
+        value = [["City Name"]]
 
-        self.table = CTkTable(master=self.scrollable_frame, row=1,
-                              column=1, hover=True, command=self.on_press)
-        self.table.grid(row=0, column=0, padx=0, pady=20, sticky="ew")
+        for i in range(1, len(self.table.values)):
+            if len(self.table.values) > 1:
+                self.table.delete_row(index=i)
 
         all_cities_res = API.post(f"{URL}/cities")
         all_cities = all_cities_res.json()
@@ -55,12 +54,12 @@ class CityView(ctk.CTkTabview):
         city_data = {}
 
         for city in all_cities["data"]["cities"]:
-            self.value.append([city["name"]])
+            value.append([city["name"]])
             data = {city["name"]: city["id"]}
             city_data.update(data)
 
-        for i in range(0, len(self.value)):
-            self.table.add_row(index=i, values=self.value[i])
+        for i in range(0, len(value)):
+            self.table.add_row(index=i, values=value[i])
         
         self.table.delete_row(index=-1)
 
@@ -86,6 +85,12 @@ class CityView(ctk.CTkTabview):
                                                        width=720, height=350)
         self.scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+        self.value = [["City Name"]]
+        self.table = CTkTable(master=self.scrollable_frame, column=1,
+                              row=1, hover=True, command=self.on_press,
+                              values=self.value)
+        self.table.grid(row=0, column=0, padx=0, pady=20, sticky="ew")
 
         self.load_data()
 
@@ -120,8 +125,6 @@ class CityView(ctk.CTkTabview):
         self.update_msg.configure(text="")
 
     def delete_record(self, city):
-        self.table.grid_forget()
-
         city_id = city_data[city]
         API.post(f"{URL}/cities/{city_id}/delete", json=city_id)
         
@@ -131,8 +134,6 @@ class CityView(ctk.CTkTabview):
         self.delete_button.configure(state="disabled")
 
     def delete_all_records(self):
-        self.table.grid_forget()
-
         cities_ids = []
         for record in city_data:
             cities_ids.append(city_data[f"{record}"])
@@ -219,8 +220,6 @@ class CityView(ctk.CTkTabview):
         self.name_entry.configure(state="disabled")
 
     def update_record(self, to_update):
-        self.table.grid_forget()
-
         city_id = city_data[to_update]
         name_data = self.new_name.get()
 
