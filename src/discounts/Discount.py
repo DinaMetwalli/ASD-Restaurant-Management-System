@@ -4,7 +4,7 @@ from decimal import Decimal
 from src.user.ActiveUser import ActiveUser
 from src.utils.errors import InputError
 from ..utils.Database import Database
-from .utils import validate_description
+from .utils import validate_description, validate_name
 
 
 class Discount:
@@ -37,6 +37,15 @@ class Discount:
 
         multiplier_dec: Decimal = multiplier[0]
         return float(multiplier_dec)
+    
+    def get_name(self) -> str:
+        """Get discount name"""
+        name = Database.execute_and_fetchone(
+            "SELECT name FROM public.discounts WHERE id = %s",
+            self._discount_id)
+        
+        assert name is not None
+        return name[0]
 
     def set_description(self, description: str) -> None:
         """Set description."""
@@ -52,6 +61,15 @@ class Discount:
         Database.execute_and_commit(
             "UPDATE public.discounts SET multiplier = %s WHERE id = %s",
             multiplier, self._discount_id)
+        
+    def set_name(self, name: str) -> None:
+        """Set description."""
+        if not validate_name(name):
+            raise InputError("Invalid name.")
+
+        Database.execute_and_commit(
+            "UPDATE public.discounts SET name = %s WHERE id = %s",
+            name, self._discount_id)
 
     def delete(self) -> None:
         """
@@ -62,8 +80,7 @@ class Discount:
 
         :raises PermissionError: If the current user does not have permission
         """
-        # Could cause issues with references, might be best to switch to soft
-        # deletion and a cron job
+        
         sql = "DELETE FROM public.discounts WHERE id=%s;"
 
         ActiveUser.get().raise_without_permission("discount.delete")
