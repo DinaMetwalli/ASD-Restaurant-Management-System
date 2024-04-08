@@ -1,11 +1,9 @@
 # Author: Dina Hassanein (22066792)
-import tkinter as tk
 from tkinter import *
 from CTkTable import *
-from tkinter import ttk
 import customtkinter as ctk
 import pywinstyles
-from api import API, URL, State
+from api import API, URL
 
 
 class BranchesPage(ctk.CTkFrame):
@@ -391,7 +389,8 @@ class BranchView(ctk.CTkTabview):
             self.branch_entry.configure(state="disabled")
             self.address_entry.configure(state="disabled")
             self.create_button.configure(state="disabled")
-            self.error_msg.configure(text="Please create a city first to create or update branches")
+            self.error_msg.configure(text="Please create a city first"
+                                     " to create or update branches")
 
             return
         
@@ -418,7 +417,8 @@ class BranchView(ctk.CTkTabview):
             self.new_city_entry.configure(state="disabled")
             self.new_name_entry.configure(state="disabled")
             self.new_address_entry.configure(state="disabled")
-            self.update_error_msg.configure(text="Please create a city first to create or update branches")
+            self.update_error_msg.configure(text="Please create a city first"
+                                            " to create or update branches")
 
             return
 
