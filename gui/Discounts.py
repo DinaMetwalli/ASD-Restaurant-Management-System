@@ -70,10 +70,8 @@ class DiscountView(ctk.CTkTabview):
     def on_press(self, data):
         self.discount = data["value"]
         if self.discount != "Discount Name":
-            self.update_button.configure(state="normal")
             self.delete_button.configure(state="normal")
         else:
-            self.update_button.configure(state="disabled")
             self.delete_button.configure(state="disabled")
 
     def view_discounts(self):
@@ -102,10 +100,6 @@ class DiscountView(ctk.CTkTabview):
                                        fg_color="#333333")
         self.view_frame.grid(row=2, column=0, sticky="sew", pady=(0,10), padx=10)
 
-        self.update_button = ctk.CTkButton(master=self.view_frame,
-                                      text='Update Discount', command= lambda:
-                                      self.configure_update(self.discount))
-
         self.delete_button = ctk.CTkButton(master=self.view_frame,
                                       text='Delete Discount', command= lambda:
                                       self.delete_record(self.discount))
@@ -125,7 +119,6 @@ class DiscountView(ctk.CTkTabview):
         
         self.load_data()
 
-        self.update_button.configure(state="disabled")
         self.delete_button.configure(state="disabled")
 
     def delete_all_records(self):
@@ -142,7 +135,6 @@ class DiscountView(ctk.CTkTabview):
         
         self.load_data()
         
-        self.update_button.configure(state="disabled")
         self.delete_button.configure(state="disabled")
 
     def create_discount(self):
