@@ -16,9 +16,9 @@ class App(CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.geometry("1050x680+0+0")
+        self.geometry("1050x710+0+0")
         self.title('Horizon Restaurants')
-        self.resizable(1, 1)
+        self.resizable(0, 1)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
 
