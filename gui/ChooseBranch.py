@@ -7,8 +7,6 @@ import ttkbootstrap as ttkb
 from PIL import Image, ImageTk
 import pywinstyles
 
-branch_data = None
-
 class ChooseBranch(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -35,7 +33,6 @@ class ChooseBranch(ctk.CTkFrame):
 
         self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(430, 400))
         self.title = ImageTk.PhotoImage(file="gui/assets/title.png")
-        
 
         self.canvas.create_image(350, 350, image=self.image)
 
@@ -48,46 +45,57 @@ class ChooseBranch(ctk.CTkFrame):
         label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
         self.canvas.create_window(50, 50, anchor="center", window=label)
 
+        self.dropdown = []
+
+        self.branch_data = {}
+
         self.all_branches_res = API.post(f"{URL}/branches")
         self.all_branches = self.all_branches_res.json()
+
+        for branch in self.all_branches["data"]["branches"]:
+            self.dropdown.append(branch["name"])
+            self.branch_data[branch["name"]] = branch["id"]
+            
+        combobox_var = ctk.StringVar(value="Choose a Branch")
+
+        self.drop = ctk.CTkComboBox(master=self.canvas, values=self.dropdown,
+                                    variable=combobox_var, command=self.combobox_callback,
+                                    width=200, height=35, font=self.drop_font,
+                                    fg_color="#f2f2f2", bg_color="#af2de7",
+                                    text_color='black')
+        self.drop.place(relx = 0.51, rely=0.575)
+
+        branch_btn = ctk.CTkButton(master=self.canvas, text="  CHOOSE BRANCH →",
+        command=lambda: self.controller.goto("LoginPage"),
+        font=self.custom_font, width=410,
+        height=45, fg_color='#333333', bg_color="#af2de7")
+
+        branch_btn.place(relx = 0.06, rely=0.8)
+
+        pywinstyles.set_opacity(branch_btn, color="#af2de7")
+        pywinstyles.set_opacity(self.drop, color="#af2de7")
 
         self.on_show()
 
     def on_show(self):
-        """Go to login page if no branches exist"""
         if len(self.all_branches["data"]["branches"]) == 0:
+            # Go to login page if no branches exist
             self.controller.goto("LoginPage")
             return
 
         State.is_ui_rendered = False
 
-        if self.drop is None:
-            self.dropdown = []
+        self.dropdown = []
+        self.branch_data = {}
 
-            global branch_data
-            branch_data = {}
-            for branch in self.all_branches["data"]["branches"]:
-                self.dropdown.append(branch["name"])
-                branch_data[branch["name"]] = branch["id"]
+        self.all_branches_res = API.post(f"{URL}/branches")
+        self.all_branches = self.all_branches_res.json()
 
-            def combobox_callback(choice):
-                State.branch_id = branch_data[choice]
-            
-            combobox_var = ctk.StringVar(value="Choose a Branch")
+        for branch in self.all_branches["data"]["branches"]:
+            self.dropdown.append(branch["name"])
+            self.branch_data[branch["name"]] = branch["id"]
 
-            self.drop = ctk.CTkComboBox(master=self.canvas, values=self.dropdown,
-                                        variable=combobox_var, command=combobox_callback,
-                                        width=200, height=35, font=self.drop_font,
-                                        fg_color="#f2f2f2", bg_color="#af2de7",
-                                        text_color='black')
-            self.drop.place(relx = 0.51, rely=0.575)
+        self.drop.configure(values=self.dropdown)
 
-            branch_btn = ctk.CTkButton(master=self.canvas, text="  CHOOSE BRANCH →",
-            command=lambda: self.controller.goto("LoginPage"),
-            font=self.custom_font, width=410,
-            height=45, fg_color='#333333', bg_color="#af2de7")
-
-            branch_btn.place(relx = 0.06, rely=0.8)
-
-            pywinstyles.set_opacity(branch_btn, color="#af2de7")
-            pywinstyles.set_opacity(self.drop, color="#af2de7")
+    def combobox_callback(self, choice):
+        State.branch_id = self.branch_data[choice]
