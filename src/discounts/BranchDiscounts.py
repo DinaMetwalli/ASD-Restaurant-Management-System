@@ -1,10 +1,13 @@
 # Author: Mohamed Elafifi
 """Module for managing discounts in a branch."""
-from src.discounts.utils import validate_description
-from src.utils.errors import InputError
+from psycopg2.errors import UniqueViolation
+
+from src.utils.errors import InputError, AlreadyExistsError
+
 from ..user.ActiveUser import ActiveUser
 from ..utils.Database import Database
 from .Discount import Discount
+from .utils import validate_description, validate_name
 
 
 class BranchDiscounts:
@@ -14,17 +17,24 @@ class BranchDiscounts:
         """Don't call outside of Branch."""
         self._branch_id = branch_id
 
-    def create(self, multiplier: float, description: str) -> Discount:
+    def create(self, name: str, multiplier: float, description: str) -> Discount:
         """Create a new discount."""
         ActiveUser.get().raise_without_permission("discounts.create")
+        
+        if not validate_name(name):
+            raise InputError("Invalid Name")
+        
         if not validate_description(description):
             raise InputError("Invalid Description")
 
-        cursor = Database.execute(
-            "INSERT INTO public.discounts \
-            (multiplier, description, branch_id) \
-            VALUES(%s, %s, %s) RETURNING id;",
-            multiplier, description, self._branch_id)
+        try:
+            cursor = Database.execute(
+                "INSERT INTO public.discounts \
+                (name, multiplier, description, branch_id) \
+                VALUES(%s, %s, %s, %s) RETURNING id;",
+                name, multiplier, description, self._branch_id)
+        except UniqueViolation:
+            raise AlreadyExistsError(f"A discount with the name {name} already exists.")
 
         Database.commit()
         result = cursor.fetchone()
