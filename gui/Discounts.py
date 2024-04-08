@@ -183,12 +183,15 @@ class DiscountView(ctk.CTkTabview):
 
     def add_record(self):
         branch_id = State.branch_id
+        if branch_id is None:
+            self.create_msg.configure(text="User must be logged into a branch"
+                                      " first before editing branch data.")
         name = self.discount_name.get()
         multiplier = self.multiplier.get()
         desc = self.description.get()
 
         discount_data = {"name": name, "multiplier": multiplier, "description": desc}
-        print(discount_data)
+        
         create = API.post(f"{URL}/branches/{branch_id}/discounts/create", json=discount_data)
         match create.status_code:
             case 200:
