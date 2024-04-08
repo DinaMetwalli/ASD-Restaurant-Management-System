@@ -1,289 +1,426 @@
 # Author: Dina Hassanein (22066792)
-from gui_lib import Page
 import tkinter as tk
 from tkinter import *
+from CTkTable import *
 from tkinter import ttk
+import customtkinter as ctk
+import pywinstyles
 from api import API, URL, State
 
 
-class BranchesPage(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        self.notebook = self.create_notebook_widget()
+class BranchesPage(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
 
-    def create_notebook_widget(self):
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure((2, 3), weight=0)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
 
-        style = ttk.Style(self)
-        style.configure('lefttab.TNotebook', tabposition='wn')
+        self.tab_view = BranchView(master=self, command=self.on_tab_selected)
+        self.tab_view.grid(row=0, column=0, padx=20, pady=20, columnspan=4)
 
-        notebook = ttk.Notebook(self)
-        notebook.pack(fill='both', expand=True)
+    def on_tab_selected(self):
+        selected_tab = self.tab_view.get()
+        if selected_tab == "View Branches":
+            self.tab_view.load_data()
+        if selected_tab == "Create Branch":
+            self.tab_view.create_msg.configure(text="")
+            self.tab_view.create_dropdown()
+        if selected_tab == "Update Branch":
+            self.tab_view.update_msg.configure(text="")
+            self.tab_view.create_update_dropdown()
 
-        # create frames
-        self.frame1 = ViewBranches(notebook)
-        self.frame2 = CreateBranch(notebook)
-        self.frame3 = UpdateBranch(notebook)
+class BranchView(ctk.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
 
-        notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
-        notebook.add(self.frame1, text='View All Branches')
-        notebook.add(self.frame2, text='Create Branch')
-        notebook.add(self.frame3, text='Update Branch')
+        # Create notebook tabs
+        self.add("View Branches")
+        self.add("Create Branch")
+        self.add("Update Branch")
 
-    def on_tab_selected(self, event):
-        # ref: https://www.homeandlearn.uk/python-database-form-tabs3.html
-        selected_tab = event.widget.select()
-        tab_text = event.widget.tab(selected_tab, "text")
+        self.font = ctk.CTkFont(family="Dosis Semibold", size=20)
 
-        if tab_text == "View All Branches":
-            self.frame1.load_records()
-        if tab_text == "Create Branch":
-            self.frame2.fields['message']['text'] = ""
-            self.frame2.create_dropdown()
-        if tab_text == "Update Branch":
-            self.frame1.load_records()
-            self.frame3.create_dropdown()
-            self.frame3.fields['message']['text'] = ""
+        self.create_branch()
+        self.view_branches()
+        self.update_branch()
 
+    def load_data(self):
 
-class ViewBranches(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        self.create_widgets()
+        value = [["Branch Name", "Address", "City"]]
 
-    def create_widgets(self):
-        columns = ('branch_name', 'address', 'city_name')
+        for i in range(1, len(self.table.values)):
+            if len(self.table.values) > 1:
+                self.table.delete_row(index=i)
 
-        self.tree = ttk.Treeview(self, columns=columns, show='headings')
-        self.tree.heading('branch_name', text='Branch')
-        self.tree.heading('address', text='Address')
-        self.tree.heading('city_name', text='City')
-        self.load_records()
-        delete_button = ttk.Button(
-            self, text='Delete All Records', command=self.delete_all_records)
-        delete_button.pack(anchor=tk.E, padx=5, pady=5)
-
-    def load_records(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        all_branches = API.post(f"{URL}/branches").json()
+        all_branches_res = API.post(f"{URL}/branches")
+        all_branches = all_branches_res.json()
 
         global branch_data
         branch_data = {}
+
         for branch in all_branches["data"]["branches"]:
             address = API.post(
                 f"{URL}/branches/{branch["id"]}").json()["data"]["address"]
-            self.tree.insert('', 'end', values=(
-                branch["name"], address, branch["city"]["name"]))
-            branch_data[branch["name"]] = branch["id"]
+            value.append([branch["name"], address, branch["city"]["name"]])
+            data = {branch["name"]: branch["id"]}
+            branch_data.update(data)
 
-        self.tree.pack(fill='x', expand=True)
+        for i in range(0, len(value)):
+            self.table.add_row(index=i, values=value[i])
+        
+        self.table.delete_row(index=-1)
+
+    def on_press(self, data):
+        if data["column"] != 0 or data["row"] == 0:
+            self.update_button.configure(state="disabled")
+            self.delete_button.configure(state="disabled")
+        else:
+            self.branch = data["value"]
+            self.update_button.configure(state="normal")
+            self.delete_button.configure(state="normal")
+
+    def view_branches(self):
+        self.tab("View Branches").columnconfigure((1, 2), minsize=1000)
+        self.tab("View Branches").rowconfigure(2, minsize=245)
+
+        self.label = ctk.CTkLabel(master=self.tab("View Branches"), text="View all Branches",
+                                  font=self.font)
+        self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        
+        self.scrollable_frame = ctk.CTkScrollableFrame(master=self.tab("View Branches"),
+                                                       width=720, height=350)
+        self.scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+        self.value = [["Branch Name", "Address", "City"]]
+        self.table = CTkTable(master=self.scrollable_frame, column=3, 
+                              row=1, hover=True, command=self.on_press,
+                              values=self.value)
+
+        self.table.grid(row=0, column=0, padx=0, pady=20, sticky="ew")
+
+        self.load_data()
+
+        self.view_frame = ctk.CTkFrame(master=self.tab("View Branches"),
+                                       fg_color="#333333")
+        self.view_frame.grid(row=2, column=0, sticky="sew", pady=(0,10), padx=10)
+
+        self.update_button = ctk.CTkButton(master=self.view_frame,
+                                      text='Update Branch', command= lambda:
+                                      self.configure_update(self.branch))
+        self.update_button.grid(row=0, column=0, padx=10)
+        self.update_button.configure(state="disabled")
+
+        self.delete_button = ctk.CTkButton(master=self.view_frame,
+                                      text='Delete Branch', command= lambda:
+                                      self.delete_record(self.branch))
+        self.delete_button.grid(row=0, column=1, padx=10)
+        self.delete_button.configure(state="disabled")
+
+        self.delete_all_button = ctk.CTkButton(master=self.view_frame,
+                                      text='Delete All Branches', command=
+                                      self.delete_all_records)
+        self.delete_all_button.grid(row=0, column=2, padx=10)
+
+    def configure_update(self, branch):
+        self.updated_branch = branch
+        self.set("Update Branch")
+
+        self.update_label.configure(text=f"Branch to be updated: {self.updated_branch}"
+                                    " - only fill in values you'd like to update")
+        self.branch_update_btn.configure(state="normal")
+        self.new_name_entry.configure(state="normal")
+        self.update_msg.configure(text="")
+        self.new_address_entry.configure(state="normal")
+        self.new_city_entry.configure(state="normal")
+        self.update_error_msg.configure(text="")
+
+    def delete_record(self, branch):
+        branch_id = branch_data[branch]
+        API.post(f"{URL}/branches/{branch_id}/delete", json=branch_id)
+        
+        self.load_data()
+
+        self.update_button.configure(state="disabled")
+        self.delete_button.configure(state="disabled")
 
     def delete_all_records(self):
-        branches_ids = []
+        branch_ids = []
         for record in branch_data:
-            branches_ids.append(branch_data[f"{record}"])
-        for id in branches_ids:
+            branch_ids.append(branch_data[f"{record}"])
+        for id in branch_ids:
             API.post(f"{URL}/branches/{id}/delete", json=id)
-        self.load_records()
+        
+        self.load_data()
+        
+        self.update_button.configure(state="disabled")
+        self.delete_button.configure(state="disabled")
 
+    def create_branch(self):
+        self.drop_font = ctk.CTkFont(family="Dosis Semibold", size=16)
 
-class CreateBranch(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        self.create_widgets()
+        self.branch_name = ctk.StringVar()
+        self.branch_address = ctk.StringVar()
 
-    def create_widgets(self):
-        self.branch_name = tk.StringVar()
-        self.address = tk.StringVar()
-        self.city_name_var = tk.StringVar()
-        self.city_name_var.set("Choose City")
+        self.tab("Create Branch").columnconfigure((0, 1, 2), minsize=1000)
+        self.tab("Create Branch").rowconfigure(5, minsize=400)
 
-        self.fields = {}
-        self.fields['branch_name_label'] = ttk.Label(self, text='Branch Name:')
-        self.fields['branch_name'] = ttk.Entry(
-            self, textvariable=self.branch_name)
-        self.fields['address_label'] = ttk.Label(self, text='Address:')
-        self.fields['address'] = ttk.Entry(self, textvariable=self.address)
-        self.fields['city_name_label'] = ttk.Label(self, text='City Name:')
-        self.message = ttk.Label(self, text="")
+        self.label = ctk.CTkLabel(master=self.tab("Create Branch"), text="Create a branch",
+                                  font=self.font)
+        self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        for field in self.fields.values():
-            field.pack(anchor=tk.W, padx=10, pady=5, fill=tk.X, expand=True)
+        self.branch_label = ctk.CTkLabel(master=self.tab("Create Branch"), text='Branch Name')
+        self.branch_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
 
-        self.fields['message'] = ttk.Label(self, text="")
-        self.fields['message'].pack(
-            anchor=tk.W, padx=10, pady=5, fill=tk.X, expand=True)
+        self.branch_entry = ctk.CTkEntry(master=self.tab("Create Branch"), textvariable=
+                                       self.branch_name, width=350)
+        self.branch_entry.grid(row=1, column=0, padx=(150,0), pady=5, sticky="w")
 
-        self.drop = None
-        self.create_dropdown()
+        self.address_label = ctk.CTkLabel(master=self.tab("Create Branch"), text='Address')
+        self.address_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
 
-    def create_dropdown(self):
+        self.address_entry = ctk.CTkEntry(master=self.tab("Create Branch"), textvariable=
+                                       self.branch_address, width=350)
+        self.address_entry.grid(row=2, column=0, padx=(150,0), pady=5, sticky="w")
 
-        dropdown = []
+        self.address_msg = ctk.CTkLabel(master=self.tab("Create Branch"),
+                                        text="Address must follow format: 000 Street, City POS TCODE"
+                                        "\nExample: 12a Oxford Rd, Manchester M1 5QA")
+        self.address_msg.grid(row=2, column=0, padx=(150,0), pady=(65,0), sticky="w")
+
+        self.label = ctk.CTkLabel(master=self.tab("Create Branch"), text="Choose City")
+        self.label.grid(row=3, column=0, padx=20, pady=(30,10), sticky="nw")
+
+        self.error_msg = ctk.CTkLabel(master=self.tab("Create Branch"), text="")
+        self.error_msg.grid(row=4, column=0, padx=(150,0), pady=(30,10), sticky="nw")
+
+        self.dropdown = []
 
         global city_data
         city_data = {}
         all_cities = API.post(f"{URL}/cities").json()
         for city in all_cities["data"]["cities"]:
-            dropdown.append(city["name"])
+            self.dropdown.append(city["name"])
             city_data[city["name"]] = city["id"]
 
-        if len(dropdown) == 0:
-            if self.drop is not None:
-                self.drop.pack_forget()
-                self.create_button.pack_forget()
-                self.drop = None
+        self.city_id = None
+        combobox_var = ctk.StringVar(value="Choose City")
+        self.drop = ctk.CTkComboBox(master=self.tab("Create Branch"), values=self.dropdown,
+                                    variable=combobox_var, command=self.combobox_callback,
+                                    width=200, height=35, font=self.drop_font,
+                                    fg_color="#f2f2f2", bg_color="#333333",
+                                    text_color='black')
+        self.drop.grid(row=3, column=0, padx=(150,0), pady=25, sticky="nw")
 
-            self.message.pack(anchor=tk.NW, padx=10, pady=5,
-                              fill=tk.X, expand=True)
-            self.message.config(
-                text="Please create a city first to update or create branches")
-            return
+        self.create_msg = ctk.CTkLabel(master=self.tab("Create Branch"), text="")
+        self.create_msg.grid(row=4, column=0, padx=(150,0), pady=10, sticky="nw")
 
-        if self.drop is not None:
-            return
+        self.create_frame = ctk.CTkFrame(master=self.tab("Create Branch"), fg_color="#333333")
+        self.create_frame.grid(row=5, column=0, sticky="sew", pady=(0,10), padx=10)
 
-        self.message.config(text="")
-        self.drop = OptionMenu(self, self.city_name_var, *dropdown)
-        self.drop.pack(anchor=tk.W, padx=10, pady=5)
+        self.create_button = ctk.CTkButton(master=self.create_frame,
+                                text='Create Branch',
+                                command=self.add_record)
+        self.create_button.grid(padx=10, row=0, column=0)
 
-        self.create_button = ttk.Button(
-            self, text='Create Branch ', command=self.add_record)
-        self.create_button.pack(anchor=tk.W, padx=10,
-                                pady=5, fill=tk.X, expand=True)
+        pywinstyles.set_opacity(self.drop, color="#333333")
+
+        self.create_dropdown()
+
+    def combobox_callback(self, choice):
+        self.city = city_data[choice]
+        self.city_id = self.city
 
     def add_record(self):
         branch = self.branch_name.get()
-        address = self.address.get()
-        city = self.city_name_var.get()
-        if city != "Choose City":
-            city_id = city_data[city]
+        address = self.branch_address.get()
+        city_id = self.city_id
+
+        if branch != "" and address != "" and self.city_id is not None:
+            branch_data = {"name": branch, "address": address, "city_id": self.city}
         else:
-            self.fields['message']["text"] = "Please choose a city."
+            self.create_msg.configure(text="Please fill in all fields to create a branch")
             return
-        create_data = {"name": branch, "address": address, "city_id": city_id}
-        create = API.post(f"{URL}/branches/create", json=create_data)
+        
+        create = API.post(f"{URL}/branches/create", json=branch_data)
         match create.status_code:
             case 200:
-                self.fields['message']["text"] = "Branch Created Successfully"
-                self.city_name_var.set("")
-            case 400 | 409 | 401:
-                self.fields['message']["text"] = create.json()["message"]
+                self.create_msg.configure(text="Branch created successfully")
+                self.branch_name.set("")
+            case 400 | 409:
+                self.create_msg.configure(text=f"{create.json()["message"]}")
+    
+    def update_branch(self):
+        self.new_name = ctk.StringVar()
+        self.new_address = ctk.StringVar()
+        self.new_city = ctk.StringVar()
 
+        self.tab("Update Branch").columnconfigure((0, 1, 2), minsize=1000)
+        self.tab("Update Branch").rowconfigure(6, minsize=480)
 
-class UpdateBranch(ttk.Frame):
-    def __init__(self, *args, **kwargs):
-        Page.__init__(self, *args, **kwargs)
-        self.create_widgets()
+        self.label = ctk.CTkLabel(master=self.tab("Update Branch"), text="Update a branch",
+                                  font=self.font)
+        self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-    def create_widgets(self):
-        self.branch_name = tk.StringVar()
-        self.address = tk.StringVar()
-        self.city_name_var = tk.StringVar()
-        self.city_name_var.set("Choose City")
+        self.update_label = ctk.CTkLabel(master=self.tab("Update Branch"),
+                                      text="Please select a branch first")
+        self.update_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
+        
+        self.label = ctk.CTkLabel(master=self.tab("Update Branch"), text="New Branch Name")
+        self.label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
 
-        self.fields = {}
-        self.fields['branch_name_label'] = ttk.Label(self, text='Branch Name:')
-        self.fields['branch_name'] = ttk.Entry(
-            self, textvariable=self.branch_name)
-        self.fields['address_label'] = ttk.Label(self, text='Address:')
-        self.fields['address'] = ttk.Entry(self, textvariable=self.address)
-        self.fields['city_name_label'] = ttk.Label(self, text='City Name:')
-        self.message = ttk.Label(self, text="")
+        self.new_name_entry = ctk.CTkEntry(master=self.tab("Update Branch"), textvariable=
+                                       self.new_name, width=350)
+        self.new_name_entry.grid(row=2, column=0, padx=(160,0), pady=5, sticky="nw")
 
-        for field in self.fields.values():
-            field.pack(anchor=tk.W, padx=10, pady=5, fill=tk.X, expand=True)
+        self.label = ctk.CTkLabel(master=self.tab("Update Branch"), text="New Branch Address")
+        self.label.grid(row=3, column=0, padx=20, pady=5, sticky="nw")
 
-        self.fields['message'] = ttk.Label(self, text="")
-        self.fields['message'].pack(
-            anchor=tk.W, padx=10, pady=5, fill=tk.X, expand=True)
+        self.new_address_entry = ctk.CTkEntry(master=self.tab("Update Branch"), textvariable=
+                                       self.new_address, width=350)
+        self.new_address_entry.grid(row=3, column=0, padx=(160,0), pady=5, sticky="nw")
 
-        self.drop = None
-        self.create_dropdown()
+        self.label = ctk.CTkLabel(master=self.tab("Update Branch"), text="New Branch City")
+        self.label.grid(row=4, column=0, padx=20, pady=5, sticky="nw")
 
-        delete_button = ttk.Button(
-            self, text='Delete Branch', command=self.delete_record)
-        delete_button.pack(anchor=tk.E, padx=5, pady=5)
-
-    def create_dropdown(self):
-
-        dropdown = []
+        self.dropdown = []
 
         global city_data
         city_data = {}
         all_cities = API.post(f"{URL}/cities").json()
         for city in all_cities["data"]["cities"]:
-            dropdown.append(city["name"])
+            self.dropdown.append(city["name"])
             city_data[city["name"]] = city["id"]
 
-        if len(dropdown) == 0:
-            if self.drop is not None:
-                self.drop.pack_forget()
-                self.update_button.pack_forget()
-                self.drop = None
+        self.new_city_id = None
+        combobox_var = ctk.StringVar(value="Choose City")
+        self.new_city_entry = ctk.CTkComboBox(master=self.tab("Update Branch"), values=self.dropdown,
+                                    variable=combobox_var, command=self.update_combobox_callback,
+                                    width=200, height=35, font=self.drop_font,
+                                    fg_color="#f2f2f2", bg_color="#333333",
+                                    text_color='black')
+        self.new_city_entry.grid(row=4, column=0, padx=(160,0), pady=5, sticky="nw")
+        
+        self.update_error_msg = ctk.CTkLabel(master=self.tab("Create Branch"), text="")
+        self.update_error_msg.grid(row=5, column=0, padx=(150,0), pady=(30,10), sticky="nw")
 
-            self.message.pack(anchor=tk.NW, padx=10, pady=5,
-                              fill=tk.X, expand=True)
-            self.message.config(
-                text="Please create a city first to update or create branches")
+        self.update_msg = ctk.CTkLabel(master=self.tab("Update Branch"), text="")
+        self.update_msg.grid(row=5, column=0, padx=(160,0), pady=5, sticky="nw")
+
+        self.update_frame = ctk.CTkFrame(master=self.tab("Update Branch"), fg_color="#333333")
+        self.update_frame.grid(row=6, column=0, sticky="sew", pady=(0,10), padx=10)
+
+        self.branch_update_btn = ctk.CTkButton(master=self.update_frame,
+                                      text='Update Branch', command=lambda:
+                                      self.update_record(self.updated_branch))
+        self.branch_update_btn.grid(padx=10, row=0, column=0)
+        
+        self.branch_update_btn.configure(state="disabled")
+        self.new_name_entry.configure(state="disabled")
+        self.new_address_entry.configure(state="disabled")
+        self.new_city_entry.configure(state="disabled")
+
+        self.update_error_msg = ctk.CTkLabel(master=self.tab("Update Branch"), text="")
+        self.update_error_msg.grid(row=5, column=0, padx=(160,0), pady=(30,10), sticky="nw")
+
+        self.create_update_dropdown()
+
+    def update_combobox_callback(self, choice):
+        self.update_city = city_data[choice]
+        self.new_city_id = self.update_city
+
+    def update_record(self, to_update):
+        branch_id = branch_data[to_update]
+        name_data = self.new_name.get()
+        address_data = self.new_address.get()
+
+        if name_data != "":
+            set_name = API.post(
+                f"{URL}/branches/{branch_id}/set/name", json={"name": name_data})
+        
+            match set_name.status_code:
+                case 200:
+                    self.configure_update_widgets()
+                case 400 | 409:
+                    self.update_msg.configure(text=f"Invalid Branch Name: {set_name.json()["message"]}")
+
+        if address_data != "":
+            set_address = API.post(
+                f"{URL}/branches/{branch_id}/set/address", json={"address": address_data})
+        
+            match set_address.status_code:
+                case 200:
+                    self.configure_update_widgets()
+                case 400 | 409:
+                    self.update_msg.configure(text=f"Invalid Address: {set_name.json()["message"]}")
+
+        if self.new_city_id is not None:
+            set_city = API.post(
+                f"{URL}/branches/{branch_id}/set/city", json={"city_id": self.city_id})
+        
+            match set_city.status_code:
+                case 200:
+                    self.configure_update_widgets()
+                case 400 | 409:
+                    self.update_msg.configure(text=f"Invalid City: {set_name.json()["message"]}")
+
+    def configure_update_widgets(self):
+        self.new_name.set("")
+        self.update_msg.configure(text="Branch updated successfully")
+        self.update_label.configure(text="Please select a branch first")
+        self.branch_update_btn.configure(state="disabled")
+        self.new_name_entry.configure(state="disabled")
+        self.new_address_entry.configure(state="disabled")
+        self.new_city_entry.configure(state="disabled")
+        self.update_button.configure(state="disabled")
+        self.delete_button.configure(state="disabled")
+    
+    def create_dropdown(self):
+        self.dropdown = []
+
+        global city_data
+        city_data = {}
+        all_cities = API.post(f"{URL}/cities").json()
+        for city in all_cities["data"]["cities"]:
+            self.dropdown.append(city["name"])
+            city_data[city["name"]] = city["id"]
+            
+        if len(self.dropdown) == 0:
+            self.drop.configure(state="disabled")
+            self.branch_entry.configure(state="disabled")
+            self.address_entry.configure(state="disabled")
+            self.create_button.configure(state="disabled")
+            self.error_msg.configure(text="Please create a city first to create or update branches")
+
+            return
+        
+        self.drop.configure(state="normal", values=self.dropdown)
+        self.branch_entry.configure(state="normal")
+        self.address_entry.configure(state="normal")
+        self.create_button.configure(state="normal")
+        self.error_msg.configure(text="")
+
+    def create_update_dropdown(self):
+        self.update_dropdown = []
+
+        global city_data
+        city_data = {}
+        all_cities = API.post(f"{URL}/cities").json()
+        for city in all_cities["data"]["cities"]:
+            self.update_dropdown.append(city["name"])
+            city_data[city["name"]] = city["id"]
+
+        print(len(self.update_dropdown))
+            
+        if len(self.dropdown) == 0:
+            self.branch_update_btn.configure(state="disabled")
+            self.new_city_entry.configure(state="disabled")
+            self.new_name_entry.configure(state="disabled")
+            self.new_address_entry.configure(state="disabled")
+            self.update_error_msg.configure(text="Please create a city first to create or update branches")
+
             return
 
-        if self.drop is not None:
-            return
-
-        self.message.config(text="")
-        self.drop = OptionMenu(self, self.city_name_var, *dropdown)
-        self.drop.pack(anchor=tk.W, padx=10, pady=5)
-
-        self.update_button = ttk.Button(
-            self, text='Update Branch', command=self.update_record)
-        self.update_button.pack(anchor=tk.E, padx=5, pady=5)
-
-    def update_record(self):
-        branch = self.branch_name.get()
-        if branch != "":
-            is_found = False
-            for branch_name in branch_data:
-                if branch_name == branch:
-                    is_found = True
-                    break
-            if is_found == False:
-                self.fields['message']["text"] = "This branch does not exist."
-                return
-            branch_id = branch_data[branch]
-            address = self.address.get()
-            city = self.city_name_var.get()
-
-            if address != "":
-                set_address = API.post(
-                    f"{URL}/branches/{branch_id}/set/address", json={"address": address})
-                match set_address.status_code:
-                    case 200:
-                        self.fields['message']["text"] = "Branch Updated Successfully"
-                    case 400 | 409 | 401:
-                        self.fields['message']["text"] = set_address.json()[
-                            "message"]
-                        return
-            if city != "Choose City":
-                city_id = city_data[city]
-                set_city = API.post(
-                    f"{URL}/branches/{branch_id}/set/city", json={"city_id": city_id})
-                match set_city.status_code:
-                    case 200:
-                        self.fields['message']["text"] = "Branch Updated Successfully"
-                    case 400 | 409 | 401:
-                        self.fields['message']["text"] = set_city.json()[
-                            "message"]
-                        return
-        else:
-            self.fields['message']["text"] = "Please enter a branch name to find the branch to update"
-
-    def delete_record(self):
-        branch = (self.branch_name.get())
-        branch_id = branch_data[branch]
-        delete_branch = API.post(
-            f"{URL}/branches/{branch_id}/delete", json=branch_id)
-        match delete_branch.status_code:
-            case 200:
-                self.fields['message']["text"] = "Branch Deleted Successfully"
+        self.new_city_entry.configure(values=self.update_dropdown)
+        self.update_error_msg.configure(text="")
