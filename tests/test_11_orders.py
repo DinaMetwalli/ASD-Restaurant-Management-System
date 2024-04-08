@@ -165,7 +165,7 @@ def test_custom_discounts():
 def test_discounts():
     assert branch is not None
     assert order is not None
-    discount = branch.discounts().create(0.2, "4/5 Off")
+    discount = branch.discounts().create("Holiday Sale", 0.2, "4/5 Off")
 
     order.set_discount(discount)
 
