@@ -73,7 +73,7 @@ class ChooseBranch(ctk.CTkFrame):
             def combobox_callback(choice):
                 State.branch_id = branch_data[choice]
             
-            combobox_var = ctk.StringVar(value=self.dropdown[0])
+            combobox_var = ctk.StringVar(value="Choose a Branch")
 
             self.drop = ctk.CTkComboBox(master=self.canvas, values=self.dropdown,
                                         variable=combobox_var, command=combobox_callback,
