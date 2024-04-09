@@ -3,6 +3,7 @@ from tkinter import *
 from CTkTable import *
 import customtkinter as ctk
 import pywinstyles
+
 from api import API, URL
 
 
@@ -233,7 +234,6 @@ class BranchView(ctk.CTkTabview):
     def add_record(self):
         branch = self.branch_name.get()
         address = self.branch_address.get()
-        city_id = self.city_id
 
         if branch != "" and address != "" and self.city_id is not None:
             branch_data = {"name": branch, "address": address, "city_id": self.city}
@@ -299,9 +299,6 @@ class BranchView(ctk.CTkTabview):
                                     fg_color="#f2f2f2", bg_color="#333333",
                                     text_color='black')
         self.new_city_entry.grid(row=4, column=0, padx=(160,0), pady=5, sticky="nw")
-        
-        self.update_error_msg = ctk.CTkLabel(master=self.tab("Create Branch"), text="")
-        self.update_error_msg.grid(row=5, column=0, padx=(150,0), pady=(30,10), sticky="nw")
 
         self.update_msg = ctk.CTkLabel(master=self.tab("Update Branch"), text="")
         self.update_msg.grid(row=5, column=0, padx=(160,0), pady=5, sticky="nw")
