@@ -89,7 +89,8 @@ class ChooseBranch(ctk.CTkFrame):
             self.message.configure(text="Please choose a branch first")
 
     def on_show(self):
-        if len(self.all_branches["data"]["branches"]) == 0:
+        all_branches = API.post(f"{URL}/branches").json()
+        if len(all_branches["data"]["branches"]) == 0:
             # Go to login page if no branches exist
             self.controller.goto("LoginPage")
             return

@@ -8,6 +8,8 @@ import ttkbootstrap as ttkb
 import pywinstyles
 from PIL import ImageTk
 
+from Discounts import DiscountsPage
+
 
 class LoginPage(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -36,7 +38,6 @@ class LoginPage(ctk.CTkFrame):
 
         self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(430, 400))
         self.title = ImageTk.PhotoImage(file="gui/assets/title.png")
-        
 
         self.canvas.create_image(350, 350, image=self.image)
 
@@ -48,8 +49,8 @@ class LoginPage(ctk.CTkFrame):
         
         self.canvas.create_image(350, 150, image=self.title)
 
-        label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
-        self.canvas.create_window(50, 50, anchor="center", window=label)
+        self.label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
+        self.canvas.create_window(50, 50, anchor="center", window=self.label)
 
         username_entry = ctk.CTkEntry(master=self.canvas, textvariable=self.username,
                                       width=250, height=35, bg_color="#af2de7",
@@ -66,19 +67,27 @@ class LoginPage(ctk.CTkFrame):
                                   "#af2de7")
         login_btn.place(relx= 0.04, rely=0.8)
 
-        back_btn = ctk.CTkButton(master=self.canvas, text="PREVIOUS PAGE",
-            command=lambda: self.controller.goto("ChooseBranch"),
-            font=self.custom_font, width=200, fg_color='#333333',
-            bg_color="#af2de7")
-        back_btn.place(relx= 0.55, rely=0.8)
+        self.back_btn = ctk.CTkButton(master=self.canvas, text="PREVIOUS PAGE",
+                        command=lambda: self.controller.goto("ChooseBranch"),
+                        font=self.custom_font, width=200, fg_color='#333333',
+                        bg_color="#af2de7")
+        self.back_btn.place(relx= 0.55, rely=0.8)
 
-        self.message = self.canvas.create_text(390, 510, fill="#330026", font="Dosis 20 bold",
-                   text="")
+        self.message = self.canvas.create_text(375, 510, fill="white",
+                                               font="Dosis 18 bold", text="")
         
         pywinstyles.set_opacity(username_entry, color="#af2de7")
         pywinstyles.set_opacity(password_entry, color="#af2de7")
         pywinstyles.set_opacity(login_btn, color="#af2de7")
-        pywinstyles.set_opacity(back_btn, color="#af2de7")
+        pywinstyles.set_opacity(self.back_btn, color="#af2de7")
+        pywinstyles.set_opacity(self.label, color="#8b3bec")
+
+    def on_show(self):
+        all_branches = API.post(f"{URL}/branches").json()
+        if len(all_branches["data"]["branches"]) == 0:
+            self.back_btn.configure(state="disabled")
+        else:
+            self.back_btn.configure(state="normal")
 
     def goto(self, page_name):
         """Show a frame for the given page name."""
@@ -101,7 +110,6 @@ class LoginPage(ctk.CTkFrame):
 
                     if found:
                         break
-
                 if not found:
                     self.canvas.itemconfig(self.message, text="This user doesn't \
                                            work at this branch.")

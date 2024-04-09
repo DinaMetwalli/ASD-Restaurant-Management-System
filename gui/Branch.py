@@ -4,7 +4,7 @@ from CTkTable import *
 import customtkinter as ctk
 import pywinstyles
 
-from api import API, URL
+from api import API, URL, State
 
 
 class BranchesPage(ctk.CTkFrame):
@@ -150,6 +150,8 @@ class BranchView(ctk.CTkTabview):
             branch_ids.append(branch_data[f"{record}"])
         for id in branch_ids:
             API.post(f"{URL}/branches/{id}/delete", json=id)
+
+        State.branch_id = None
         
         self.load_data()
         
