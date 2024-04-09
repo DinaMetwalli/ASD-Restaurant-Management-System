@@ -36,14 +36,14 @@ class ChooseBranch(ctk.CTkFrame):
 
         self.canvas.create_image(350, 350, image=self.image)
 
-        text = self.canvas.create_text(180, 426, fill="white",
-                   text="Please choose a branch")
+        text = self.canvas.create_text(150, 426, fill="white",
+                   text="Choose A Branch")
         self.canvas.itemconfig(text, font=("Dosis Semibold", 23))
         
         self.canvas.create_image(350, 150, image=self.title)
 
-        label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
-        self.canvas.create_window(50, 50, anchor="center", window=label)
+        self.label = ctk.CTkLabel(self.canvas, text='', bg_color='#8b3bec', height=0)
+        self.canvas.create_window(50, 50, anchor="center", window=self.label)
 
         self.dropdown = []
 
@@ -56,26 +56,37 @@ class ChooseBranch(ctk.CTkFrame):
             self.dropdown.append(branch["name"])
             self.branch_data[branch["name"]] = branch["id"]
             
-        combobox_var = ctk.StringVar(value="Choose a Branch")
-
+        self.combobox_var = ctk.StringVar(value="Choose a Branch")
         self.drop = ctk.CTkComboBox(master=self.canvas, values=self.dropdown,
-                                    variable=combobox_var, command=self.combobox_callback,
+                                    variable=self.combobox_var, command=self.combobox_callback,
                                     width=200, height=35, font=self.drop_font,
                                     fg_color="#f2f2f2", bg_color="#af2de7",
                                     text_color='black')
         self.drop.place(relx = 0.51, rely=0.575)
 
+        self.message = ctk.CTkLabel(master=self.canvas, text="", font=self.drop_font,
+                                    bg_color="black")
+        self.message.place(relx = 0.51, rely = 0.67)
+
         branch_btn = ctk.CTkButton(master=self.canvas, text="  CHOOSE BRANCH →",
-        command=lambda: self.controller.goto("LoginPage"),
-        font=self.custom_font, width=410,
-        height=45, fg_color='#333333', bg_color="#af2de7")
+                                   command = self.handle_choice, font=self.custom_font, width=410,
+                                   height=45, fg_color='#333333', bg_color="#af2de7")
 
         branch_btn.place(relx = 0.06, rely=0.8)
 
         pywinstyles.set_opacity(branch_btn, color="#af2de7")
         pywinstyles.set_opacity(self.drop, color="#af2de7")
+        pywinstyles.set_opacity(self.message, color="black")
+        pywinstyles.set_opacity(self.label, color="#8b3bec")
 
         self.on_show()
+
+    def handle_choice(self):
+        if State.branch_id is not None:
+            self.message.configure(text="")
+            self.controller.goto("LoginPage")
+        else:
+            self.message.configure(text="Please choose a branch first")
 
     def on_show(self):
         if len(self.all_branches["data"]["branches"]) == 0:
