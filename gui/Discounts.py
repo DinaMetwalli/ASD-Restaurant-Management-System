@@ -61,7 +61,6 @@ class DiscountView(ctk.CTkTabview):
             data = {discount["name"]: discount["id"]}
             discount_data.update(data)
 
-        print(value)
         for i in range(0, len(value)):
             self.table.add_row(index=i, values=value[i])
         
@@ -69,10 +68,10 @@ class DiscountView(ctk.CTkTabview):
 
     def on_press(self, data):
         self.discount = data["value"]
-        if self.discount != "Discount Name":
-            self.delete_button.configure(state="normal")
-        else:
+        if data["column"] != 0 or data["row"] == 0:
             self.delete_button.configure(state="disabled")
+        else:
+            self.delete_button.configure(state="normal")
 
     def view_discounts(self):
 
