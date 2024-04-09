@@ -12,9 +12,18 @@ cleanup = auth_cleanup
 
 class PostSchema(Schema):
     username = fields.String(required=True)
+    full_name = fields.String(required=True)
+    password = fields.String(required=True)
+    role_id = fields.Int(required=True)
 
 
 def post(body, branch_id: str = ""):
+    username = body["username"]
+    full_name = body["full_name"]
+    password = body["password"]
+    role_id = body["role_id"]
+    print(role_id, flush=True)
+    
     if branch_id is None:
         Error(Status.BAD_REQUEST, "SHOULDNT BE POSSIBLE")
 
@@ -22,14 +31,8 @@ def post(body, branch_id: str = ""):
     if branch is None:
         return Error(Status.NOT_FOUND, "Branch not found.")
 
-    username: str = body["username"]
-
     try:
-        user = UserService.get_by_username(username)
-
-        if user is None:
-            return Error(Status.NOT_FOUND, "User not found.")
-
+        user = UserService.create(username, password, full_name, None, role_id)
         user.set_branch(branch)
 
     except AuthorizationError as e:
