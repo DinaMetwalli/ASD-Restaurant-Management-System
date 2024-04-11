@@ -20,7 +20,6 @@ class HomePage(ctk.CTkFrame):
                         rowspan=4, columnspan=4)
         
         self.frame.grid_columnconfigure(0, weight=1)
-        # self.frame.grid_rowconfigure(0, weight=1)
 
         self.inner_frame = ctk.CTkFrame(master=self.frame)
         self.inner_frame.grid(row=0, column=0, sticky="nsew",
