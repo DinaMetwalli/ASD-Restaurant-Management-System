@@ -89,7 +89,7 @@ class MainPage(ctk.CTkFrame):
     def create_notebook_widget(self):
         
         side_bar = ctk.CTkFrame(self, width=100)
-        side_bar.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=(0,20))
+        side_bar.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=0)
         
         self.frame1 = HomePage(self)
         self.frame2 = StaffPage(self)
