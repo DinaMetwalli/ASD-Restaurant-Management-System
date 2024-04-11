@@ -419,8 +419,6 @@ class BranchView(ctk.CTkTabview):
         for city in all_cities["data"]["cities"]:
             self.update_dropdown.append(city["name"])
             city_data[city["name"]] = city["id"]
-
-        print(len(self.update_dropdown))
             
         if len(self.dropdown) == 0:
             self.branch_update_btn.configure(state="disabled")

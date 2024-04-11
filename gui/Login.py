@@ -96,7 +96,6 @@ class LoginPage(ctk.CTkFrame):
         frame.tkraise()
 
     def handle_input(self):
-        print("The branch id is", State.branch_id)
         if State.branch_id is not None:
             branch_id = State.branch_id
 
@@ -106,10 +105,10 @@ class LoginPage(ctk.CTkFrame):
             if self.username.get() != "admin":
                 for user in branch_users["data"]["users"]:
                     found = user["username"] == self.username.get()
-                    print(found)
 
                     if found:
                         break
+                    
                 if not found:
                     self.canvas.itemconfig(self.message, text="This user doesn't \
                                            work at this branch.")
