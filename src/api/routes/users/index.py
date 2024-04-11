@@ -6,6 +6,7 @@ def post():
     users = UserService.get_all(dont_auth=True)
 
     users_data = [{"username": u.get_username(),
-                   "full_name": u.get_full_name()} for u in users]
+                   "full_name": u.get_full_name(),
+                   "role": u.get_role().get_id()} for u in users]
 
     return OK({"users": users_data})
