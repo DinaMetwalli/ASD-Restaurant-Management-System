@@ -1,8 +1,7 @@
 # Author: Dina Hassanein (22066792)
 
 import customtkinter as ctk
-from customtkinter import CTkImage
-from PIL import Image
+from PIL import Image, ImageTk
 
 from Home import HomePage
 from Staff import StaffPage
@@ -22,7 +21,7 @@ class MainPage(ctk.CTkFrame):
 
         self.controller = controller
 
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0, minsize=850)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
 
@@ -46,50 +45,51 @@ class MainPage(ctk.CTkFrame):
 
                 match State.role_id:
                     case 0:
-                        self.button1.grid(row=1, column=0, padx=20, pady=10)
-                        self.button7.grid(row=2, column=0, padx=20, pady=10)
-                        self.button8.grid(row=3, column=0, padx=20, pady=10)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5, sticky="n")
+                        # self.button7.grid(row=2, column=0, padx=20, pady=5, sticky="n")
+                        self.button8.grid(row=3, column=0, padx=20, pady=5, sticky="n")
                     case 1:
-                        self.button1.grid(row=1, column=0, padx=20, pady=10)
-                        self.button7.grid(row=2, column=0, padx=20, pady=10)
-                        self.button8.grid(row=3, column=0, padx=20, pady=10)
-                        self.button9.grid(row=4, column=0, padx=20, pady=10)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5, sticky="n")
+                        # self.button7.grid(row=2, column=0, padx=20, pady=5, sticky="n")
+                        self.button8.grid(row=3, column=0, padx=20, pady=5, sticky="n")
+                        # self.button9.grid(row=4, column=0, padx=20, pady=5, sticky="n")
                     case 2 | 3:
-                        self.button1.grid(row=1, column=0, padx=20, pady=10)
-                        self.button7.grid(row=2, column=0, padx=20, pady=10)
-                        self.button5.grid(row=3, column=0, padx=20, pady=10)
-                        self.button8.grid(row=4, column=0, padx=20, pady=10)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5, sticky="n")
+                        # self.button7.grid(row=2, column=0, padx=20, pady=5, sticky="n")
+                        # self.button5.grid(row=3, column=0, padx=20, pady=5, sticky="n")
+                        self.button8.grid(row=4, column=0, padx=20, pady=5, sticky="n")
                     case 4:
-                        self.button1.grid(row=1, column=0, padx=20, pady=10)
-                        self.button3.grid(row=2, column=0, padx=20, pady=10)
-                        self.button4.grid(row=3, column=0, padx=20, pady=10)
-                        self.button5.grid(row=4, column=0, padx=20, pady=10)
-                        self.button6.grid(row=5, column=0, padx=20, pady=10)
-                        self.button7.grid(row=6, column=0, padx=20, pady=10)
-                        self.button8.grid(row=7, column=0, padx=20, pady=10)
-                        self.button9.grid(row=8, column=0, padx=20, pady=10)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5, sticky="n")
+                        self.button3.grid(row=2, column=0, padx=20, pady=5, sticky="n")
+                        self.button4.grid(row=3, column=0, padx=20, pady=5, sticky="n")
+                        # self.button5.grid(row=4, column=0, padx=20, pady=5, sticky="n")
+                        self.button6.grid(row=5, column=0, padx=20, pady=5, sticky="n")
+                        # self.button7.grid(row=6, column=0, padx=20, pady=5, sticky="n")
+                        self.button8.grid(row=7, column=0, padx=20, pady=5, sticky="n")
+                        # self.button9.grid(row=8, column=0, padx=20, pady=5, sticky="n")
                     case 99:
-                        self.button1.grid(row=1, column=0, padx=20, pady=5)
-                        self.button2.grid(row=2, column=0, padx=20, pady=5)
-                        self.button3.grid(row=3, column=0, padx=20, pady=5)
-                        self.button4.grid(row=4, column=0, padx=20, pady=5)
-                        self.button5.grid(row=5, column=0, padx=20, pady=5)
-                        self.button6.grid(row=6, column=0, padx=20, pady=5)
-                        self.button7.grid(row=7, column=0, padx=20, pady=5)
-                        self.button8.grid(row=8, column=0, padx=20, pady=5)
-                        self.button9.grid(row=9, column=0, padx=20, pady=5)
+                        self.button1.grid(row=1, column=0, padx=20, pady=5, sticky="n")
+                        self.button2.grid(row=2, column=0, padx=20, pady=5, sticky="n")
+                        self.button3.grid(row=3, column=0, padx=20, pady=5, sticky="n")
+                        self.button4.grid(row=4, column=0, padx=20, pady=5, sticky="n")
+                        # self.button5.grid(row=5, column=0, padx=20, pady=5, sticky="n")
+                        self.button6.grid(row=6, column=0, padx=20, pady=5, sticky="n")
+                        # self.button7.grid(row=7, column=0, padx=20, pady=5, sticky="n")
+                        self.button8.grid(row=8, column=0, padx=20, pady=5, sticky="n")
+                        # self.button9.grid(row=9, column=0, padx=20, pady=5, sticky="n")
             State.is_ui_rendered = True
 
     def logout(self):
-        self.controller.goto("ChooseBranch")
         State.role_id = None
         State.username = None
+        self.controller.goto("ChooseBranch")
         self.user_view()
 
     def create_notebook_widget(self):
         
         side_bar = ctk.CTkFrame(self, width=100)
         side_bar.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=0)
+        side_bar.grid_rowconfigure(10, weight=1)
         
         self.frame1 = HomePage(self)
         self.frame2 = StaffPage(self)
@@ -105,9 +105,8 @@ class MainPage(ctk.CTkFrame):
                           self.frame5, self.frame6, self.frame7, self.frame8,
                           self.frame9]
 
-        self.logo = CTkImage(Image.open("gui/assets/logo.png"), size=(150,25))
-        self.logo_label = ctk.CTkLabel(side_bar, image=self.logo, text="",
-                                                 font=ctk.CTkFont(size=20, weight="bold"))
+        self.logo = ctk.CTkImage(Image.open("gui/assets/logo.png"), size=(170,25))
+        self.logo_label = ctk.CTkLabel(side_bar, image=self.logo, text="")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         btn_w = 180
@@ -147,13 +146,17 @@ class MainPage(ctk.CTkFrame):
                         self.button9]
 
         for page in self.all_pages:
-            page.grid(row=0, column=1,sticky="nsew") 
+            page.grid(row=0, column=1, sticky="nsew")
         
         self.select_page(self.frame1)
 
         btn = ctk.CTkButton(master=side_bar, text="Logout", command=self.logout,
                             width=btn_w, height=btn_h)
-        btn.grid(row=10, column=0, sticky="s", pady=(200, 50))
+        btn.grid(row=10, column=0, pady=(45,0))
+
+        self.footer = ctk.CTkImage(Image.open("gui/assets/footer.jpg"), size=(1100,150))
+        self.footer_label = ctk.CTkLabel(self, image=self.footer, text="")
+        self.footer_label.grid(row=1, column=0, sticky="sew", columnspan=4, padx=7, pady=(0,7))
     
     def select_page(self, selected_page: ctk.CTkFrame):
         try:
