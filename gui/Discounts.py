@@ -11,8 +11,7 @@ class DiscountsPage(ctk.CTkFrame):
         super().__init__(master)
 
         self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(0, weight=1)
         
         self.tab_view = DiscountView(master=self, command=self.on_tab_selected)
         self.tab_view.grid(row=0, column=0, padx=20, pady=20, columnspan=4)
@@ -74,17 +73,20 @@ class DiscountView(ctk.CTkTabview):
             self.delete_button.configure(state="normal")
 
     def view_discounts(self):
+        self.tab("View Discounts").grid_rowconfigure(0, minsize=700)
 
-        self.tab("View Discounts").columnconfigure((1, 2), minsize=1000)
-        self.tab("View Discounts").rowconfigure(2, minsize=245)
-
-        self.label = ctk.CTkLabel(master=self.tab("View Discounts"), text="View all discounts",
+        window = ctk.CTkFrame(master=self.tab("View Discounts"),
+                              fg_color="#333333", height=600)
+        window.grid(row=0, column=0, sticky="n")
+        window.columnconfigure((0, 1, 2), minsize=1000)
+        
+        self.label = ctk.CTkLabel(master=window, text="View all discounts",
                                   font=self.font)
         self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
         
-        self.scrollable_frame = ctk.CTkScrollableFrame(master=self.tab("View Discounts"),
+        self.scrollable_frame = ctk.CTkScrollableFrame(master=window,
                                                        width=720, height=350)
-        self.scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.scrollable_frame.grid(row=1, column=0, padx=(45, 0), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         self.value = [["Discount Name", "Percentage", "Description"]]
@@ -97,18 +99,18 @@ class DiscountView(ctk.CTkTabview):
 
         self.view_frame = ctk.CTkFrame(master=self.tab("View Discounts"),
                                        fg_color="#333333")
-        self.view_frame.grid(row=2, column=0, sticky="sew", pady=(0,10), padx=10)
+        self.view_frame.grid(row=2, column=0, sticky="sew")
 
         self.delete_button = ctk.CTkButton(master=self.view_frame,
                                       text='Delete Discount', command= lambda:
                                       self.delete_record(self.discount))
-        self.delete_button.grid(row=0, column=0, padx=10)
+        self.delete_button.grid(row=0, column=0, pady=(0,10), padx=10)
         self.delete_button.configure(state="disabled")
 
         self.delete_all_button = ctk.CTkButton(master=self.view_frame,
                                       text='Delete All Records', command=
                                       self.delete_all_records)
-        self.delete_all_button.grid(row=0, column=1, padx=10)
+        self.delete_all_button.grid(row=0, column=1, pady=(0,10), padx=10)
 
     def delete_record(self, discount):
         discount_id = discount_data[discount]
@@ -141,44 +143,48 @@ class DiscountView(ctk.CTkTabview):
         self.multiplier = ctk.DoubleVar()
         self.description = ctk.StringVar()
 
-        self.tab("Create Discount").columnconfigure((0, 1, 2), minsize=1000)
-        self.tab("Create Discount").rowconfigure(5, minsize=585)
+        self.tab("Create Discount").grid_rowconfigure(0, minsize=700)
 
-        self.label = ctk.CTkLabel(master=self.tab("Create Discount"), text="Create a discount",
+        window = ctk.CTkFrame(master=self.tab("Create Discount"),
+                              fg_color="#333333", height=600)
+        window.grid(row=0, column=0, sticky="n")
+        window.columnconfigure((0, 1, 2), minsize=1000)
+
+        self.label = ctk.CTkLabel(master=window, text="Create a discount",
                                   font=self.font)
         self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        self.discount_label = ctk.CTkLabel(master=self.tab("Create Discount"), text='Discount Name')
+        self.discount_label = ctk.CTkLabel(master=window, text='Discount Name')
         self.discount_label.grid(row=1, column=0, padx=20, pady=5, sticky="nw")
 
-        self.discount_entry = ctk.CTkEntry(master=self.tab("Create Discount"), textvariable=
+        self.discount_entry = ctk.CTkEntry(master=window, textvariable=
                                        self.discount_name, width=350)
         self.discount_entry.grid(row=1, column=0, padx=(150,0), pady=5, sticky="nw")
 
-        self.multiplier_label = ctk.CTkLabel(master=self.tab("Create Discount"), text='Multiplier')
+        self.multiplier_label = ctk.CTkLabel(master=window, text='Multiplier')
         self.multiplier_label.grid(row=2, column=0, padx=20, pady=5, sticky="nw")
 
-        self.multiplier_entry = ctk.CTkEntry(master=self.tab("Create Discount"), textvariable=
+        self.multiplier_entry = ctk.CTkEntry(master=window, textvariable=
                                        self.multiplier, width=350)
         self.multiplier_entry.grid(row=2, column=0, padx=(150,0), pady=5, sticky="nw")
 
-        self.desc_label = ctk.CTkLabel(master=self.tab("Create Discount"), text='Description')
+        self.desc_label = ctk.CTkLabel(master=window, text='Description')
         self.desc_label.grid(row=3, column=0, padx=20, pady=5, sticky="nw")
 
-        self.desc_entry = ctk.CTkEntry(master=self.tab("Create Discount"), textvariable=
+        self.desc_entry = ctk.CTkEntry(master=window, textvariable=
                                        self.description, width=350)
         self.desc_entry.grid(row=3, column=0, padx=(150,0), pady=5, sticky="nw")
 
-        self.create_msg = ctk.CTkLabel(master=self.tab("Create Discount"), text="")
+        self.create_msg = ctk.CTkLabel(master=window, text="")
         self.create_msg.grid(row=4, column=0, padx=(150,0), pady=5, sticky="nw")
 
         self.create_frame = ctk.CTkFrame(master=self.tab("Create Discount"), fg_color="#333333")
-        self.create_frame.grid(row=5, column=0, sticky="sew", pady=(0,10), padx=10)
+        self.create_frame.grid(row=5, column=0, sticky="sew")
 
         create_button = ctk.CTkButton(master=self.create_frame,
                                       text='Create Discount',
                                       command=self.add_record)
-        create_button.grid(padx=10, row=0, column=0)
+        create_button.grid(pady=(0,10), padx=10, row=0, column=0)
 
     def add_record(self):
         branch_id = State.branch_id

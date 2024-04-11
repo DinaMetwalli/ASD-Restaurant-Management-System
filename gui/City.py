@@ -10,8 +10,7 @@ class CitiesPage(ctk.CTkFrame):
         super().__init__(master)
 
         self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(0, weight=1)
         
         self.tab_view = CityView(master=self, command=self.on_tab_selected)
         self.tab_view.grid(row=0, column=0, padx=20, pady=20, columnspan=4)
@@ -74,16 +73,20 @@ class CityView(ctk.CTkTabview):
 
     def view_cities(self):
 
-        self.tab("View Cities").columnconfigure((1, 2), minsize=1000)
-        self.tab("View Cities").rowconfigure(2, minsize=245)
+        self.tab("View Cities").grid_rowconfigure(0, minsize=700)
 
-        self.label = ctk.CTkLabel(master=self.tab("View Cities"), text="View all cities",
+        window = ctk.CTkFrame(master=self.tab("View Cities"),
+                              fg_color="#333333", height=600)
+        window.grid(row=0, column=0, sticky="n")
+        window.columnconfigure((0, 1, 2), minsize=1000)
+
+        self.label = ctk.CTkLabel(master=window, text="View all cities",
                                   font=self.font)
         self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
         
-        self.scrollable_frame = ctk.CTkScrollableFrame(master=self.tab("View Cities"),
+        self.scrollable_frame = ctk.CTkScrollableFrame(master=window,
                                                        width=720, height=350)
-        self.scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.scrollable_frame.grid(row=1, column=0, padx=(45, 0), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         self.value = [["City Name"]]
@@ -96,24 +99,24 @@ class CityView(ctk.CTkTabview):
 
         self.view_frame = ctk.CTkFrame(master=self.tab("View Cities"),
                                        fg_color="#333333")
-        self.view_frame.grid(row=2, column=0, sticky="sew", pady=(0,10), padx=10)
+        self.view_frame.grid(row=2, column=0, sticky="sew")
 
         self.update_button = ctk.CTkButton(master=self.view_frame,
                                       text='Update City', command= lambda:
                                       self.configure_update(self.city))
-        self.update_button.grid(row=0, column=0, padx=10)
+        self.update_button.grid(row=0, column=0, pady=(0,10), padx=10)
         self.update_button.configure(state="disabled")
 
         self.delete_button = ctk.CTkButton(master=self.view_frame,
                                       text='Delete City', command= lambda:
                                       self.delete_record(self.city))
-        self.delete_button.grid(row=0, column=1, padx=10)
+        self.delete_button.grid(row=0, column=1, pady=(0,10), padx=10)
         self.delete_button.configure(state="disabled")
 
         self.delete_all_button = ctk.CTkButton(master=self.view_frame,
                                       text='Delete All Records', command=
                                       self.delete_all_records)
-        self.delete_all_button.grid(row=0, column=2, padx=10)
+        self.delete_all_button.grid(row=0, column=2, pady=(0,10), padx=10)
 
     def configure_update(self, city):
         self.updated_city = city
@@ -148,33 +151,37 @@ class CityView(ctk.CTkTabview):
     def create_city(self):
         self.city_name = ctk.StringVar()
 
-        self.tab("Create City").columnconfigure((0, 1, 2), minsize=1000)
-        self.tab("Create City").rowconfigure(3, minsize=700)
+        self.tab("Create City").grid_rowconfigure(0, minsize=700)
+        
+        window = ctk.CTkFrame(master=self.tab("Create City"),
+                              fg_color="#333333", height=600)
+        window.grid(row=0, column=0, sticky="n")
+        window.columnconfigure((0, 1, 2), minsize=1000)
 
-        self.label = ctk.CTkLabel(master=self.tab("Create City"), text="Create a city",
+        self.label = ctk.CTkLabel(master=window, text="Create a city",
                                   font=self.font)
         self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        self.city_label = ctk.CTkLabel(master=self.tab("Create City"), text='City Name')
+        self.city_label = ctk.CTkLabel(master=window, text='City Name')
         self.city_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
 
-        self.city_entry = ctk.CTkEntry(master=self.tab("Create City"), textvariable=
+        self.city_entry = ctk.CTkEntry(master=window, textvariable=
                                        self.city_name, width=350)
         self.city_entry.grid(row=1, column=0, padx=(100,0), pady=5, sticky="w")
 
-        self.create_msg = ctk.CTkLabel(master=self.tab("Create City"), text="")
+        self.create_msg = ctk.CTkLabel(master=window, text="")
         self.create_msg.grid(row=2, column=0, padx=(100,0), pady=5, sticky="w")
 
         self.create_frame = ctk.CTkFrame(master=self.tab("Create City"), fg_color="#333333")
-        self.create_frame.grid(row=3, column=0, sticky="sew", pady=(0,10), padx=10)
+        self.create_frame.grid(row=3, column=0, sticky="sew")
 
         create_button = ctk.CTkButton(master=self.create_frame,
                                       text='Create City',
                                       command=self.add_record)
-        create_button.grid(padx=10, row=0, column=0)
+        create_button.grid(pady=(0,10), padx=10, row=0, column=0)
 
     def add_record(self):
-        city = (self.city_name.get())
+        city = self.city_name.get()
         city_data = {"name": city}
         create = API.post(f"{URL}/cities/create", json=city_data)
         match create.status_code:
@@ -187,34 +194,38 @@ class CityView(ctk.CTkTabview):
     def update_city(self):
         self.new_name = ctk.StringVar()
 
-        self.tab("Update City").columnconfigure((0, 1, 2), minsize=1000)
-        self.tab("Update City").rowconfigure(4, minsize=630)
+        self.tab("Update City").grid_rowconfigure(0, minsize=700)
 
-        self.label = ctk.CTkLabel(master=self.tab("Update City"), text="Update a city",
+        window = ctk.CTkFrame(master=self.tab("Update City"),
+                              fg_color="#333333", height=600)
+        window.grid(row=0, column=0, sticky="n")
+        window.columnconfigure((0, 1, 2), minsize=1000)
+
+        self.label = ctk.CTkLabel(master=window, text="Update a city",
                                   font=self.font)
         self.label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        self.update_label = ctk.CTkLabel(master=self.tab("Update City"),
+        self.update_label = ctk.CTkLabel(master=window,
                                       text="Please select a city first")
         self.update_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
         
-        self.label = ctk.CTkLabel(master=self.tab("Update City"), text="New City Name")
+        self.label = ctk.CTkLabel(master=window, text="New City Name")
         self.label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
 
-        self.name_entry = ctk.CTkEntry(master=self.tab("Update City"), textvariable=
+        self.name_entry = ctk.CTkEntry(master=window, textvariable=
                                        self.new_name, width=350)
         self.name_entry.grid(row=2, column=0, padx=(160,0), pady=5, sticky="w")
         
-        self.update_msg = ctk.CTkLabel(master=self.tab("Update City"), text="")
+        self.update_msg = ctk.CTkLabel(master=window, text="")
         self.update_msg.grid(row=3, column=0, padx=(160,0), pady=5, sticky="w")
 
         self.update_frame = ctk.CTkFrame(master=self.tab("Update City"), fg_color="#333333")
-        self.update_frame.grid(row=4, column=0, sticky="sew", pady=(0,10), padx=10)
+        self.update_frame.grid(row=4, column=0, sticky="sew")
 
         self.city_update_btn = ctk.CTkButton(master=self.update_frame,
                                       text='Update City', command=lambda:
                                       self.update_record(self.updated_city))
-        self.city_update_btn.grid(padx=10, row=0, column=0)
+        self.city_update_btn.grid(pady=(0,10), padx=10, row=0, column=0)
         
         self.city_update_btn.configure(state="disabled")    
         self.name_entry.configure(state="disabled")
