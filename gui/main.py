@@ -10,13 +10,13 @@ from MainPage import MainPage
 
 
 ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+ctk.set_default_color_theme("green")
 
 class App(CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.geometry("1050x710+0+0")
+        self.geometry("1100x755+300+50")
         self.title('Horizon Restaurants')
         self.resizable(0, 1)
         self.columnconfigure(0, weight=1)
