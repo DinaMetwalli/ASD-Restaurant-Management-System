@@ -36,7 +36,9 @@ class LoginPage(ctk.CTkFrame):
         main_frame = ctk.CTkFrame(login_frame)
         main_frame.grid(row=0, column=0, rowspan=4)        
 
-        self.canvas = ctk.CTkCanvas(master=main_frame, width=700, height=700)
+        self.canvas = ctk.CTkCanvas(master=main_frame, width=700,
+                                    height=700, borderwidth=0,
+                                    highlightthickness=0)
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
         self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(100, 100))
