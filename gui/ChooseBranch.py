@@ -1,10 +1,8 @@
 from api import URL, API, State
 
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import *
-import ttkbootstrap as ttkb
-from PIL import Image, ImageTk
+from PIL import ImageTk
 import pywinstyles
 
 class ChooseBranch(ctk.CTkFrame):
@@ -22,16 +20,20 @@ class ChooseBranch(ctk.CTkFrame):
         self.custom_font = ctk.CTkFont(family="Oswald", size=20)
         self.drop_font = ctk.CTkFont(family="Dosis Semibold", size=16)
 
-        main_frame = ttkb.Frame(self)
-        main_frame.grid(row=0, column=0)
+        self.grid_rowconfigure(0, weight=1, minsize=1130)
 
-        top = ctk.CTkLabel(self, bg_color='#2b2b2b', height=100, text='')
-        top.grid(row=0, column=0, sticky="ew")
+        window = ctk.CTkFrame(self)
+        window.grid(row=0, column=0)
 
-        self.canvas = ttkb.Canvas(self, bg="black", width=700, height=700)
-        self.canvas.grid(row=1, column=0)
+        window.grid_rowconfigure(0, weight=1)
 
-        self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(430, 400))
+        main_frame = ctk.CTkFrame(window)
+        main_frame.grid(row=0, column=0, rowspan=4)
+
+        self.canvas = ctk.CTkCanvas(master=main_frame, width=700, height=700)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(100, 100))
         self.title = ImageTk.PhotoImage(file="gui/assets/title.png")
 
         self.canvas.create_image(350, 350, image=self.image)
@@ -62,7 +64,7 @@ class ChooseBranch(ctk.CTkFrame):
                                     width=200, height=35, font=self.drop_font,
                                     fg_color="#f2f2f2", bg_color="#af2de7",
                                     text_color='black')
-        self.drop.place(relx = 0.51, rely=0.575)
+        self.drop.place(relx = 0.50, rely=0.575)
 
         self.message = ctk.CTkLabel(master=self.canvas, text="", font=self.drop_font,
                                     bg_color="black")
@@ -72,7 +74,7 @@ class ChooseBranch(ctk.CTkFrame):
                                    command = self.handle_choice, font=self.custom_font, width=410,
                                    height=45, fg_color='#333333', bg_color="#af2de7")
 
-        branch_btn.place(relx = 0.06, rely=0.8)
+        branch_btn.place(relx = 0.065, rely=0.8)
 
         pywinstyles.set_opacity(branch_btn, color="#af2de7")
         pywinstyles.set_opacity(self.drop, color="#af2de7")

@@ -4,7 +4,6 @@ from api import URL, API, State
 
 import tkinter as tk
 import customtkinter as ctk
-import ttkbootstrap as ttkb
 import pywinstyles
 from PIL import ImageTk
 
@@ -24,19 +23,23 @@ class LoginPage(ctk.CTkFrame):
         self.custom_font = ctk.CTkFont(family="Oswald", size=20)
         self.input_font = ctk.CTkFont(family="Dosis Semibold", size=16)
         
-        self.username = tk.StringVar()
-        self.password = tk.StringVar()
+        self.grid_rowconfigure(0, weight=1, minsize=1130)
+
+        self.username = ctk.StringVar()
+        self.password = ctk.StringVar()
         
-        login_frame = ttkb.Frame(self)
+        login_frame = ctk.CTkFrame(self)
         login_frame.grid(row=0, column=0)
 
-        top = ctk.CTkLabel(self, bg_color='#2b2b2b', height=100, text='')
-        top.grid(row=0, column=0, sticky="ew")
+        login_frame.grid_rowconfigure(0, weight=1)
 
-        self.canvas = ttkb.Canvas(self, bg="black", width=700, height=700)
-        self.canvas.grid(row=1, column=0)
+        main_frame = ctk.CTkFrame(login_frame)
+        main_frame.grid(row=0, column=0, rowspan=4)        
 
-        self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(430, 400))
+        self.canvas = ctk.CTkCanvas(master=main_frame, width=700, height=700)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        self.image = ImageTk.PhotoImage(file="gui/assets/background.jpg", size=(100, 100))
         self.title = ImageTk.PhotoImage(file="gui/assets/title.png")
 
         self.canvas.create_image(350, 350, image=self.image)
@@ -63,15 +66,14 @@ class LoginPage(ctk.CTkFrame):
         password_entry.place(x=190, y=275)
 
         login_btn = ctk.CTkButton(master=self.canvas, text="  LOGIN →", command=self.handle_input,
-                                  font=self.custom_font, width=200, fg_color='#333333', bg_color=
-                                  "#af2de7")
+                                  font=self.custom_font, width=200, bg_color="#af2de7")
         login_btn.place(relx= 0.04, rely=0.8)
 
         self.back_btn = ctk.CTkButton(master=self.canvas, text="PREVIOUS PAGE",
                         command=lambda: self.controller.goto("ChooseBranch"),
                         font=self.custom_font, width=200, fg_color='#333333',
                         bg_color="#af2de7")
-        self.back_btn.place(relx= 0.55, rely=0.8)
+        self.back_btn.place(relx= 0.52, rely=0.8)
 
         self.message = self.canvas.create_text(375, 510, fill="white",
                                                font="Dosis 18 bold", text="")
